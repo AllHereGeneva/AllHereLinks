@@ -56,6 +56,31 @@
 *::before,
 *::after { box-sizing: border-box; }
 
+/* --- orphan control ---------------------------------------------------
+   Two layers, because neither is sufficient alone:
+
+   1. The last two words of every fixed string of three words or more are
+      already glued with a non-breaking space in index.html — the same rule as
+      the app's src/utils/noOrphan.ts (which skips two-word strings, since
+      gluing those makes one unbreakable token that forces character wrapping
+      in a narrow container). That guarantee holds in every browser.
+   2. These `text-wrap` hints let the browser do better than the glue where it
+      can: `balance` evens out short headings, `pretty` avoids short last lines
+      in prose. Both are the Lounge site's house convention, and both degrade
+      to normal wrapping where unsupported.                                   */
+
+.title,
+.now__title,
+.link__title,
+.sheet__title { text-wrap: balance; }
+
+.link__sub,
+.links__label,
+.picker__label,
+.sheet__subtitle,
+.sheet__body p,
+.footer { text-wrap: pretty; }
+
 /* No overflow / contain / filter on <html> or <body>: any of them would make
    the element a containing block for position:fixed descendants, which detaches
    the atmosphere canvas from the viewport and scrolls it off the page. */
