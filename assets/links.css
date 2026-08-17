@@ -809,25 +809,30 @@ body {
 
 @media (max-width: 639px) {
   :root {
-    /* Smaller than the centred layout's ring: the width it gives up goes to the
-       column beside it, which needs enough room for "Three minutes meditation"
-       to stay on one line. Below that, the non-breaking space glue starts
-       pushing the first word onto a line of its own. */
-    --play-size: clamp(112px, 15vh, 132px);
+    /* A little smaller than the centred layout's ring, to leave room for the
+       column of lengths beside it — but not so small that it stops being the
+       thing your eye lands on first. */
+    --play-size: clamp(132px, 17vh, 150px);
   }
 
   .hero {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    /* Both columns sized to their content and the pair centred, rather than a
+       `1fr` column that stretches the lengths to whatever is left over. The
+       rows that span both columns (label, switch, track name) are all narrower
+       than the two columns combined, so none of them inflates the grid. */
+    grid-template-columns: auto auto;
+    justify-content: center;
     grid-template-areas:
       'label  label'
       'switch switch'
       'now    now'
       'play   pills';
     column-gap: var(--sp-md);
-    row-gap: var(--sp-sm);
+    /* Full-step gutters. At 8px the four stacked rows read as one dense block. */
+    row-gap: var(--sp-md);
     align-items: center;
-    padding: var(--sp-lg) 0 var(--sp-md);
+    padding: var(--sp-xl) 0 var(--sp-lg);
   }
 
   /* Dissolve the wrapper's box so the label, switch and pills become grid items
@@ -854,7 +859,15 @@ body {
     grid-area: pills;
     flex-direction: column;
     align-self: start;
+    /* One fixed width for all three rather than stretch-to-column: stretching
+       made them read as a heavy slab, and letting each size to its own content
+       leaves a ragged edge because the sub-labels differ in length. */
+    width: 128px;
   }
+
+  /* The title needs air under the wordmark; at 24px the two ran together as one
+     block. */
+  .title { margin-top: var(--sp-xl); }
 }
 
 /* --- wider viewports --------------------------------------------------
