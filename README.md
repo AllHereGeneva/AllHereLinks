@@ -1,7 +1,7 @@
 # All Here — QR landing page
 
-A single-page "start here" for QR codes: the app's six instant meditations behind
-its play button, the world map of meditators, and the links to get to know us.
+A single-page "start here" for QR codes: the world map of meditators and the links
+to get to know us, then the app's six instant meditations behind its play button.
 
 No build step, no framework, no dependencies — plain HTML/CSS/JS. Push to `main`
 and GitHub Pages serves it.
@@ -51,26 +51,50 @@ shared package.
 
 ## Layout
 
-**Phones (< 640px)** — the hero turns sideways: the ring on the left, the three
-lengths stacked beside it, the track name spanning both above them. A centred
-stack of title, ring and pills is precisely the app's Start screen, which makes
-the page read as a copy of the app rather than as its doorway; turning it also
-buys back vertical space. `.picker` becomes `display: contents` here so the
-label, switch and pills can be placed as grid items of `.hero` without
-duplicating any markup.
+The order is the same at every size: **who we are, then the practice, then the
+app**. Someone scanning the code should reach our own pages first; the meditation
+is what keeps them, not what greets them.
 
-The track name spans both columns rather than sitting beside the ring because
-"Three minutes meditation" needs about 210px on one line, which no column narrow
-enough to leave room for the ring can give it — and below that width the
-non-breaking-space glue starts pushing the first word onto a line of its own.
+**Phones (< 640px)** — two full-height screens joined by a scroll cue.
 
-**640px and up** — the original vertical arrangement returns, in a wider column.
+| | |
+| --- | --- |
+| Screen 1 | wordmark, page title, the link list, the socials |
+| the cue | "Instant meditation" + chevron, pinned to the bottom |
+| Screen 2 | the practice, then the app download, then the footer |
 
-**980px and up** — two-column grid: brand and hero on the left, the links panel
-on the right, sized so it clears a 1280×800 laptop without the page scrolling.
-Both grid rows are `auto`, never `1fr`: a fractional row swallows the free space
-and leaves `align-content: center` nothing to distribute, which pins the brand to
-the top of the window instead of centring the stack.
+Each screen is a `.screen` wrapper at `min-height: 100svh` with
+`scroll-snap-align: start`. Snapping is `proximity`, not `mandatory`: the second
+screen can grow past a short phone's viewport, and mandatory snapping there fights
+anyone trying to reach its lower half. The cue is a plain `<a href>`, so the jump
+is the browser's own smooth scroll — no script, and it works with JS off.
+
+Inside screen 2 the hero turns sideways: the ring on the left, the three lengths
+stacked beside it, the track name spanning both above them. A centred stack of
+title, ring and pills is precisely the app's Start screen, which made the page
+read as a copy of the app rather than as its doorway. The track name spans both
+columns rather than sitting beside the ring because "Three minutes meditation"
+needs about 210px on one line, which no column narrow enough to leave room for the
+ring can give it — and below that width the non-breaking-space glue starts pushing
+the first word onto a line of its own.
+
+**640px and up** — one wider column, everything stacked in the same order.
+
+**980px and up** — two-column grid: brand and hero on the left; the links panel,
+the app panel and the footer on the right. `.screen` becomes `display: contents`
+so its children place as grid items directly.
+
+Sized to clear a 1280×800 laptop without the page scrolling. Two traps behind
+that:
+
+- Grid rows are all `auto`, never `1fr`. A fractional row swallows the free space
+  and leaves `align-content: center` nothing to distribute, which pins the brand
+  to the top of the window instead of centring the stack.
+- The page uses `min-height`, not `height`. With a fixed height, `align-content:
+  center` on content taller than the container overflows *both* ways and puts the
+  top of the first panel permanently out of reach — the same trap as flex-centring
+  a container smaller than its content. Worth remembering before adding anything
+  to the right column.
 
 ---
 
@@ -87,10 +111,16 @@ of its substance. The circular shell is the app's own icon button; `aria-label`
 carries the name for screen readers and `title` for pointer users, since there's
 no visible text.
 
-The panel carries two labels: the app block reuses allhere.org's own heading above
-its store badges ("Download the Silent Mind App"), and "Get to know us" labels the
-link list. Wording an existing call to action twice over is worse than reusing it,
-so take app copy from allhere.org or the Lounge site rather than inventing it here.
+**Section headings** — three of them ("Get to know us", "Instant meditation",
+"Download the Silent Mind App"), all on one `.section-title` tier: the app's h3,
+sentence case. They were overlines at first, which put an 11 px uppercase eyebrow
+above the 18 px track readout it was meant to govern — the hierarchy read
+upside-down. Sizes now descend strictly: 22 page title, 16 section heading, 14 the
+attention switch, 12 the readout. Keep new headings on that tier.
+
+The app heading reuses allhere.org's own wording above its store badges. Wording an
+existing call to action twice over is worse than reusing it, so take app copy from
+allhere.org or the Lounge site rather than inventing it here.
 
 **The meditations** — everything lives in the pills' data attributes, in two
 `.pills` groups (one per attention). No JS change is needed to add or repoint one.

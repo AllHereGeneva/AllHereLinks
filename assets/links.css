@@ -7,8 +7,9 @@
  * in lockstep; the play button's animation durations and amplitudes are copied
  * from CircleButton so the ring breathes at exactly the same rhythm.
  *
- * Layout: one column on phones, two columns from 980px — hero on the left,
- * links on the right, the whole page centred in the viewport.
+ * Layout: on phones, two full-height screens — brand and links first, then the
+ * practice and the app — joined by a scroll cue. From 980px it's a two-column
+ * grid with everything on one screen.
  */
 
 :root {
@@ -70,13 +71,12 @@
       to normal wrapping where unsupported.                                   */
 
 .title,
-.now__title,
+.section-title,
 .link__title,
 .sheet__title { text-wrap: balance; }
 
 .link__sub,
-.links__label,
-.picker__label,
+.now,
 .sheet__subtitle,
 .sheet__body p,
 .footer { text-wrap: pretty; }
@@ -122,10 +122,16 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Fill at least the viewport so the hero reads as a full screen on a phone,
-     with the links starting just at/below the fold. */
   min-height: 100svh;
 }
+
+/* Wrappers for the phone layout's two screens. Dissolved from 640px so their
+   children go back to being direct children of .page — see the media queries. */
+.screen { display: contents; }
+
+/* Scroll cue between the two screens. Hidden by default; the phone media query
+   turns it on. */
+.scroll-cue { display: none; }
 
 /* --- header ----------------------------------------------------------- */
 
@@ -155,49 +161,51 @@ body {
   padding: 0 var(--sp-sm);
 }
 
-/* --- hero (selected meditation + play button + picker) ----------------- */
+/* --- section headings -------------------------------------------------
+   One tier for all three ("Get to know us", "Instant meditation", "Download the
+   Silent Mind App"): the app's h3, sentence case. Deliberately NOT the overline
+   tier — an 11px uppercase eyebrow read as smaller than the 18px readout it was
+   meant to govern, which inverted the hierarchy. Sizes now descend strictly:
+   22 page title, 16 section heading, 14 the attention switch, 12 the readout. */
+.section-title {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 21px;
+  letter-spacing: 0.2px;
+  color: var(--text);
+  text-align: center;
+  margin: 0 0 var(--sp-md);
+}
+
+/* --- hero (the practice) ---------------------------------------------- */
 
 .hero {
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Absorbs the surplus height on tall screens so the button sits visually
-     centred-low, like the app's flex spacers do. */
-  flex: 1 0 auto;
-  justify-content: center;
   gap: var(--sp-md);
-  padding: var(--sp-xl) 0 var(--sp-lg);
   width: 100%;
 }
 
-/* Track name + duration, sitting a fixed distance above the circle — same
-   block the app anchors above its CircleButton. During a rounds session the
-   meta line reads "Round 2 of 3" / "Break" instead of the total duration. */
+/* Readout of what the button will play — one line at the caption tier. It is
+   state, not a heading: it repeats the pressed pill, and during a rounds session
+   it reports "Round 2 of 3" / "Break". */
 .now {
-  text-align: center;
-  min-height: 48px;
-}
-
-.now__title {
-  /* type.h2 at the app's next-title size. */
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 24px;
-  margin: 0 0 var(--sp-xs);
-}
-
-.now__meta {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 6px;
   margin: 0;
   color: var(--text-muted);
   font-size: 12px;
   letter-spacing: 0.3px;
+  text-align: center;
 }
 
-.now__meta svg { display: block; }
+.now svg { display: block; flex: none; }
+
+.now__dot { color: var(--text-dim); }
 
 /* --- play button (port of src/components/CircleButton.tsx) -------------
    Geometry is expressed in a 0 0 100 100 viewBox so every radius scales with
@@ -245,15 +253,30 @@ body {
 }
 
 /* Inward radial-gradient halo, accent-tinted, transparent at the centre so the
-   ring outlines it crisply. Pulses on its own 2700 ms period. */
-.play__glow { animation: glow-pulse 2700ms var(--ease-sine) infinite alternate; }
+   ring outlines it crisply.
+   Its brightness keeps the app's own 2700 ms period — deliberately out of step
+   with the ring, so the button reads as living rather than metronomic — but its
+   SCALE is locked to the ring's breath. The app scales the two by different
+   amounts (5% vs 2%) on different periods, and since the halo's bright rim
+   (r 44.65) sits a tenth of a unit inside the ring's inner edge (r 44.74), any
+   drift between them opens a visible dark gap and closes it again. Same period,
+   same amount, no gap; the independent fade keeps the layering. */
+.play__glow {
+  animation: glow-fade 2700ms var(--ease-sine) infinite alternate,
+             breath-scale 3600ms var(--ease-sine) infinite alternate;
+}
 
 /* Ghost copy of the ring drifting outward — the "tap me" emanation. Runs only
-   in the idle state (see .is-playing below). */
+   in the idle state (see .is-playing below). Detaching from the ring is the
+   whole point here, so it keeps its own scale. */
 .play__ripple { animation: ripple 4800ms cubic-bezier(0.5, 1, 0.89, 1) infinite; }
 
-/* The ring: scales ±5% and fades 0.55 -> 1 with the breath. */
-.play__ring { animation: breath 3600ms var(--ease-sine) infinite alternate; }
+/* The ring: scales ±5% and fades 0.55 -> 1 with the breath. Fade and scale are
+   separate animations so the halo above can borrow the scale alone. */
+.play__ring {
+  animation: breath-fade 3600ms var(--ease-sine) infinite alternate,
+             breath-scale 3600ms var(--ease-sine) infinite alternate;
+}
 
 /* Elapsed-progress arc — audio position while playing, break progress while
    between rounds. */
@@ -326,8 +349,12 @@ body {
 .play.is-playing .play__pause { display: flex; }
 
 /* Playing state — the app mutes the breath to 45 % intensity, stops the sway
-   entirely (the audio itself is the motion) and drops the ripple. */
-.play.is-playing .play__ring { animation-name: breath-muted; }
+   entirely (the audio itself is the motion) and drops the ripple.
+   The name lists stay positional against the `animation` shorthands above, so
+   each layer keeps its own duration while swapping to the muted keyframes — and
+   the halo keeps following the ring's scale. */
+.play.is-playing .play__ring { animation-name: breath-fade-muted, breath-scale-muted; }
+.play.is-playing .play__glow { animation-name: glow-fade, breath-scale-muted; }
 .play.is-playing .play__glyph { animation-name: glyph-breath-muted; }
 .play.is-playing .play__sway { animation: none; }
 .play.is-playing .play__ripple { opacity: 0; animation: none; }
@@ -341,18 +368,28 @@ body {
 .play.is-break .play__pause { display: none; }
 .play.is-break .play__break { display: block; }
 
-@keyframes breath {
-  from { transform: scale(1);    opacity: 0.55; }
-  to   { transform: scale(1.05); opacity: 1; }
+/* Breath, split into scale and fade so the ring and the halo can share the
+   geometry while keeping separate brightness rhythms. */
+@keyframes breath-scale {
+  from { transform: scale(1); }
+  to   { transform: scale(1.05); }
+}
+@keyframes breath-fade {
+  from { opacity: 0.55; }
+  to   { opacity: 1; }
 }
 /* 45 % of the amplitude above: scale +2.25 %, opacity floor 0.7975. */
-@keyframes breath-muted {
-  from { transform: scale(1);       opacity: 0.7975; }
-  to   { transform: scale(1.0225);  opacity: 1; }
+@keyframes breath-scale-muted {
+  from { transform: scale(1); }
+  to   { transform: scale(1.0225); }
 }
-@keyframes glow-pulse {
-  from { transform: scale(1);    opacity: 0.55; }
-  to   { transform: scale(1.02); opacity: 1; }
+@keyframes breath-fade-muted {
+  from { opacity: 0.7975; }
+  to   { opacity: 1; }
+}
+@keyframes glow-fade {
+  from { opacity: 0.55; }
+  to   { opacity: 1; }
 }
 @keyframes glyph-breath {
   from { transform: scale(1); }
@@ -374,19 +411,11 @@ body {
   58.33%  { transform: scale(1.4); opacity: 0; }
   100%    { transform: scale(1.4); opacity: 0; }
 }
-
-/* --- instant meditation picker ---------------------------------------- */
-
-.picker { width: 100%; text-align: center; }
-
-.picker__label {
-  /* type.overline — the app's own usage for this Start-screen label. */
-  font-weight: 600;
-  font-size: 11px;
-  letter-spacing: 1.6px;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin: 0 0 var(--sp-sm);
+/* Scroll cue — a slow drift down and back, on a period in the same family as the
+   button's breath and halo so the page keeps one rhythm. */
+@keyframes cue-bob {
+  from { transform: translateY(0);   opacity: 0.55; }
+  to   { transform: translateY(6px); opacity: 1; }
 }
 
 /* --- attention switch (port of src/components/AttentionSwitch.tsx) -----
@@ -398,7 +427,6 @@ body {
   display: inline-block;
   position: relative;
   padding-bottom: 7px;
-  margin: 0 auto var(--sp-md);
 }
 
 /* Spacing is asymmetric on purpose: a word sits tight against its own (i), and
@@ -594,90 +622,37 @@ body {
 .links {
   position: relative;
   width: 100%;
-  margin-top: var(--sp-xxl);
+  margin-top: var(--sp-xl);
 }
 
-/* Scrim behind the link list. The shader is dark but not uniformly so, and
-   15 px labels over a moving surface get tiring to read; the app solves the
-   same problem by stacking two flat dark overlays over its video background
+/* Scrim behind the link list. The shader is dark but not uniformly so, and 15px
+   labels over a moving surface get tiring to read; the app solves the same
+   problem by stacking two flat dark overlays over its video background
    (VideoBackground.tsx). Scoped to the list and fading in from the top so the
-   hero keeps the atmosphere unclouded. */
+   atmosphere stays unclouded above it. */
 .links::before {
   content: '';
   position: absolute;
   /* Bleeds into the page's own side padding, so on a phone (where the column
      spans the viewport) it reaches the screen edges — without a 100vw overhang
      that would need an overflow rule on an ancestor. */
-  inset: 0 calc(var(--sp-lg) * -1) calc(var(--sp-xxl) * -1);
+  inset: 0 calc(var(--sp-lg) * -1) calc(var(--sp-lg) * -1);
   z-index: -1;
+  /* Fades in at the top AND out at the bottom. It used to stop hard at its lower
+     edge, which was invisible while the list was the last thing on the page —
+     but the practice section now sits below it, and the edge showed as a seam. */
   background: linear-gradient(
     to bottom,
     rgba(0, 8, 35, 0) 0,
     rgba(0, 8, 35, 0.58) 72px,
-    rgba(0, 8, 35, 0.58) 100%
+    rgba(0, 8, 35, 0.58) calc(100% - 64px),
+    rgba(0, 8, 35, 0) 100%
   );
   /* Feather the left and right edges so the scrim never reads as a dark
      rectangle pasted over the water. */
   -webkit-mask-image: linear-gradient(to right, transparent 0, #000 12%, #000 88%, transparent 100%);
           mask-image: linear-gradient(to right, transparent 0, #000 12%, #000 88%, transparent 100%);
   pointer-events: none;
-}
-
-.links__label {
-  font-weight: 600;
-  font-size: 11px;
-  letter-spacing: 1.6px;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  text-align: center;
-  margin: 0 0 var(--sp-md);
-}
-
-/* The second label in the panel — needs air above it to read as the start of a
-   new block rather than a caption on the one before. */
-.links__label--section { margin-top: var(--sp-xl); }
-
-/* App shot + the two official store badges, stacked beside it. */
-.stores {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--sp-md);
-  margin-bottom: var(--sp-lg);
-}
-
-.stores__phone {
-  display: block;
-  flex: none;
-  /* Wider than the phone alone would need, because the asset is the full
-     composition (hand, phone and the navy glow around them) rather than a crop —
-     at a narrower width the screen itself stops being readable. */
-  width: 132px;
-  height: auto;
-  border-radius: 10px;
-  /* The asset carries its own navy backdrop, so it would otherwise read as a
-     hard rectangle over the water; the rounded corners and soft shadow make it
-     read as a deliberately framed shot. */
-  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
-}
-
-.stores__badges {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-sm);
-}
-
-.stores__badges a {
-  display: block;
-  transition: opacity 200ms ease;
-}
-
-.stores__badges a:hover { opacity: 0.78; }
-
-.stores__badges img {
-  display: block;
-  height: 42px;
-  width: auto;
 }
 
 /* Link rows. The app's list surfaces are borderless with a hairline separator
@@ -763,8 +738,8 @@ body {
   padding: 0;
 }
 
-/* Same circular icon-button shell as the app's account button — hairline
-   border over a barely-there fill. */
+/* Same circular icon-button shell as the app's account button — hairline border
+   over a barely-there fill. */
 .social {
   display: grid;
   place-items: center;
@@ -786,28 +761,81 @@ body {
 
 .social svg { display: block; }
 
+/* --- app download ----------------------------------------------------- */
+
+.app {
+  width: 100%;
+  margin-top: var(--sp-xl);
+}
+
+/* App shot + the two official store badges, stacked beside it. */
+.stores {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--sp-md);
+}
+
+.stores__phone {
+  display: block;
+  flex: none;
+  /* Wider than the phone alone would need, because the asset is the full
+     composition (hand, phone and the navy glow around them) rather than a crop —
+     at a narrower width the screen itself stops being readable. */
+  width: 132px;
+  height: auto;
+  border-radius: 10px;
+  /* The asset carries its own navy backdrop, so it would otherwise read as a
+     hard rectangle over the water; the rounded corners and soft shadow make it
+     read as a deliberately framed shot. */
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+}
+
+.stores__badges {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+
+.stores__badges a {
+  display: block;
+  transition: opacity 200ms ease;
+}
+
+.stores__badges a:hover { opacity: 0.78; }
+
+.stores__badges img {
+  display: block;
+  height: 42px;
+  width: auto;
+}
+
 /* --- footer ----------------------------------------------------------- */
 
 .footer {
-  margin-top: var(--sp-xl);
-  margin-bottom: 0;
+  margin: var(--sp-xl) 0 0;
   text-align: center;
   font-size: 12px;
   letter-spacing: 0.3px;
   color: var(--text-dim);
 }
 
-.footer a { color: var(--text-muted); text-decoration: none; }
-.footer a:hover { text-decoration: underline; }
-
-/* --- phones: the hero turns sideways -----------------------------------
-   A centred stack of title, ring and pills is precisely the app's Start screen,
-   which makes the page read as a copy of the app rather than as its doorway. On
-   a phone the ring therefore moves to the left with the track name and the three
-   lengths stacked beside it, which also buys back vertical space. From 640px the
-   original vertical arrangement returns unchanged. */
+/* --- phones: two screens ----------------------------------------------
+   Screen one is the brand and the links — what should be reached first. Screen
+   two is the practice and the app. A centred stack of title, ring and pills was
+   precisely the app's Start screen, which made the page read as a copy of the
+   app rather than as its doorway; here the ring sits left with the three lengths
+   beside it instead. */
 
 @media (max-width: 639px) {
+  html {
+    /* `proximity`, not `mandatory`: the second screen can grow past a short
+       phone's viewport, and mandatory snapping there fights the user trying to
+       reach its lower half. */
+    scroll-snap-type: y proximity;
+    scroll-behavior: smooth;
+  }
+
   :root {
     /* A little smaller than the centred layout's ring, to leave room for the
        column of lengths beside it — but not so small that it stops being the
@@ -815,12 +843,67 @@ body {
     --play-size: clamp(132px, 17vh, 150px);
   }
 
+  /* The screens carry their own spacing, so the page's padding can't push the
+     first one past the fold and hide the cue. */
+  .page { padding-top: 0; padding-bottom: 0; }
+
+  .screen {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Content centres as one group. Letting a child grow into the leftover
+       height instead pinned the wordmark to the top of the window and opened a
+       300px hole below it. */
+    justify-content: center;
+    width: 100%;
+    min-height: 100svh;
+    scroll-snap-align: start;
+    /* Room for the cue, which is pinned to the bottom of the first screen. */
+    padding-bottom: var(--sp-xxl);
+  }
+
+  .scroll-cue {
+    /* Pinned rather than laid out in the flow, so it takes no part in centring
+       the group above. Centred with a negative margin, not translateX — the bob
+       animation owns `transform`. */
+    position: absolute;
+    bottom: var(--sp-sm);
+    left: 50%;
+    margin-left: -80px;
+    width: 160px;
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    color: var(--text-dim);
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    animation: cue-bob 2200ms var(--ease-sine) infinite alternate;
+  }
+
+  .scroll-cue__label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .scroll-cue svg { display: block; }
+
+  /* Screen two has no cue under it. */
+  #practice { padding-bottom: var(--sp-lg); }
+
+  .links { margin-top: var(--sp-lg); }
+
+  .app { margin-top: var(--sp-lg); }
+
   .hero {
     display: grid;
     /* Both columns sized to their content and the pair centred, rather than a
-       `1fr` column that stretches the lengths to whatever is left over. The
-       rows that span both columns (label, switch, track name) are all narrower
-       than the two columns combined, so none of them inflates the grid. */
+       `1fr` column that stretches the lengths to whatever is left over. The rows
+       that span both columns are all narrower than the two columns combined, so
+       none of them inflates the grid. */
     grid-template-columns: auto auto;
     justify-content: center;
     grid-template-areas:
@@ -832,28 +915,17 @@ body {
     /* Full-step gutters. At 8px the four stacked rows read as one dense block. */
     row-gap: var(--sp-md);
     align-items: center;
-    padding: var(--sp-xl) 0 var(--sp-lg);
   }
 
-  /* Dissolve the wrapper's box so the label, switch and pills become grid items
-     of .hero and can be placed independently. At >= 640px it goes back to being
-     a plain block and the markup needs no duplication. */
-  .picker { display: contents; }
-
-  .picker__label { grid-area: label; }
-  .attention { grid-area: switch; justify-self: center; margin-bottom: var(--sp-xs); }
+  .hero .section-title { grid-area: label; margin: 0; }
+  .attention { grid-area: switch; justify-self: center; }
   .play { grid-area: play; }
 
   /* Spans both columns rather than sitting in the narrow one beside the ring:
      "Three minutes meditation" needs about 210px on one line, which no column
-     narrow enough to leave room for the ring can give it. Full width keeps every
-     title on a single line at the app's own size, and costs no height — the row
-     below is taller than the ring either way. It also reads as a heading over
-     both the ring and the choices, which is what it is. */
-  .now {
-    grid-area: now;
-    min-height: 0;
-  }
+     narrow enough to leave room for the ring can give it. Below that width the
+     non-breaking-space glue starts pushing the first word onto its own line. */
+  .now { grid-area: now; }
 
   .pills {
     grid-area: pills;
@@ -865,59 +937,67 @@ body {
     width: 128px;
   }
 
-  /* The title needs air under the wordmark; at 24px the two ran together as one
-     block. */
+  /* The title needs air under the wordmark; at 24px the two ran together. */
   .title { margin-top: var(--sp-xl); }
 }
 
 /* --- wider viewports --------------------------------------------------
    Tablets and small laptops get a roomier single column; from 980px the page
-   splits so the hero and the links sit side by side and the whole thing fits
-   one screen without scrolling. */
+   splits into two, and everything fits one screen without scrolling. */
 
 @media (min-width: 640px) {
   :root { --column-max: 580px; }
   .title { font-size: 26px; line-height: 32px; letter-spacing: 1.2px; }
+  .section-title { font-size: 18px; line-height: 24px; }
   .stores__badges img { height: 46px; }
   .stores__phone { width: 148px; }
   .link__thumb { width: 104px; }
+  .hero { padding-top: var(--sp-lg); }
 }
 
 @media (min-width: 980px) {
   :root {
     --column-max: 1120px;
-    --play-size: clamp(150px, 22vh, 210px);
+    /* 20vh rather than 22: with the links panel now pairing with the short brand
+       row, the two columns together needed 25px more than a 1280x800 laptop has.
+       This and the page padding below buy that back without compressing the row
+       rhythm, and 160px is still comfortably the biggest thing on screen. */
+    --play-size: clamp(150px, 20vh, 190px);
   }
 
   .page {
     display: grid;
-    /* Hero a touch wider than the links so the button stays the focal point. */
+    /* Hero a touch wider than the panels so the button stays the focal point. */
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-    /* Both rows `auto`, never `1fr`: a fractional row would swallow all the
-       free space and leave `align-content` nothing to distribute, which pins
-       the brand to the top of the window instead of centring the stack. */
-    grid-template-rows: auto auto;
+    /* Rows are all `auto`, never `1fr`: a fractional row would swallow the free
+       space and leave `align-content` nothing to distribute, which pins the
+       brand to the top of the window instead of centring the stack. */
+    grid-template-rows: auto auto auto;
+    /* Links first in the right column too, so the priority reads the same on
+       every screen size: our own pages before the app download. */
     grid-template-areas:
       'brand links'
-      'hero  links';
+      'hero  app'
+      'hero  footer';
     column-gap: clamp(40px, 5vw, 88px);
     /* `min-height` (not height) above means the grid grows when the content is
        taller than the viewport, so centring here can't push anything out of
        reach on a short window. */
     align-content: center;
-    padding: var(--sp-xl) var(--sp-xl);
+    padding: var(--sp-lg);
   }
 
-  .brand { grid-area: brand; }
-  .hero  { grid-area: hero; padding-top: var(--sp-lg); }
+  .brand  { grid-area: brand; align-self: center; }
+  .hero   { grid-area: hero; align-self: center; padding-top: 0; }
+  .app    { grid-area: app; align-self: center; margin-top: 0; }
+  .links  { grid-area: links; align-self: center; margin-top: 0; }
+  .footer { grid-area: footer; align-self: start; margin-top: var(--sp-md); }
 
+  /* Floating glass panels replace the phone layout's scrim — the same grammar as
+     the leaderboard's standings panel. */
+  .app,
   .links {
-    grid-area: links;
-    align-self: center;
-    margin-top: 0;
-    /* A floating glass panel replaces the full-width scrim — the same grammar
-       as the leaderboard's standings panel. */
-    padding: var(--sp-lg) var(--sp-lg) var(--sp-md);
+    padding: var(--sp-lg);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     background: rgba(0, 8, 35, 0.42);
@@ -943,4 +1023,8 @@ body {
   .play__arc-fill { transition: none; }
   .pills--enter { animation: none; }
   .attention__rule { transition: none; }
+  /* The cue stays visible, just still — and the jump to the second screen
+     becomes instant rather than a long animated scroll. */
+  .scroll-cue { animation: none; opacity: 0.85; }
+  html { scroll-behavior: auto; }
 }

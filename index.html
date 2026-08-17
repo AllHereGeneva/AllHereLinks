@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>All Here — Start here</title>
-<meta name="description" content="Six guided instant meditations, the world map of meditators, and everything about All Here.">
+<meta name="description" content="The world map of meditators, six guided instant meditations, and everything about All Here.">
 <meta name="theme-color" content="#00102E">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 
@@ -12,7 +12,7 @@
      relative paths. Update both when the page moves to allhere.org. -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="All Here — Start here">
-<meta property="og:description" content="Six guided instant meditations, the world map of meditators, and everything about All Here.">
+<meta property="og:description" content="The world map of meditators, six guided instant meditations, and everything about All Here.">
 <meta property="og:url" content="https://allheregeneva.github.io/AllHereLinks/">
 <meta property="og:image" content="https://allheregeneva.github.io/AllHereLinks/assets/img/allhere-logo.png">
 <meta name="twitter:card" content="summary">
@@ -30,231 +30,19 @@
 
 <main class="page">
 
+<!-- On phones the page is two full-height screens. This first one leads with what
+     should be reached first — who we are and where to find us. `.screen` is
+     display:contents from 640px, so the wider layouts place its children as grid
+     items and the wrappers cost nothing there. -->
+<div class="screen">
+
   <header class="brand">
     <img class="logo" src="assets/img/allhere-logo.png" alt="All Here">
     <h1 class="title">Your journey to the Silent&nbsp;Mind</h1>
   </header>
 
-  <section class="hero">
-    <!-- What the play button will play. Kept in sync with the pills below, and
-         during a 3-round session the meta line shows which round is running. -->
-    <div class="now">
-      <p class="now__title" id="now-title">One minute&nbsp;meditation</p>
-      <p class="now__meta">
-        <!-- Headphones — the app's KindIcon for an audio track. -->
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-          <path d="M4 14v-2a8 8 0 0 1 16 0v2"></path>
-          <path d="M4 14h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"></path>
-          <path d="M20 14h-2a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1z"></path>
-        </svg>
-        <span id="now-duration">1 min</span>
-      </p>
-    </div>
-
-    <button class="play" id="play" type="button" aria-label="Play the one minute meditation">
-      <!-- Halo: accent-tinted, fully transparent at the centre so the ring
-           outlines it crisply. -->
-      <span class="play__layer play__glow">
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          <defs>
-            <radialGradient id="halo" cx="50%" cy="50%" r="50%">
-              <stop offset="0%"   stop-color="#3D6BBA" stop-opacity="0"></stop>
-              <stop offset="55%"  stop-color="#3D6BBA" stop-opacity="0.06"></stop>
-              <stop offset="92%"  stop-color="#3D6BBA" stop-opacity="0.30"></stop>
-              <stop offset="100%" stop-color="#3D6BBA" stop-opacity="0.45"></stop>
-            </radialGradient>
-          </defs>
-          <circle cx="50" cy="50" r="44.65" fill="url(#halo)"></circle>
-        </svg>
-      </span>
-
-      <!-- Expanding ghost ring — the emanation that says "tap me". -->
-      <span class="play__layer play__ripple">
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          <circle cx="50" cy="50" r="46" fill="none" stroke="#3D6BBA" stroke-width="2.16"></circle>
-        </svg>
-      </span>
-
-      <!-- The ring. Hidden during a between-rounds break, where the arc's own
-           neutral track takes over — same swap the app's CircleButton does. -->
-      <span class="play__layer play__ring">
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          <circle cx="50" cy="50" r="46" fill="none" stroke="#3D6BBA" stroke-width="2.52" opacity="0.85"></circle>
-        </svg>
-      </span>
-
-      <!-- Progress arc: elapsed audio while playing, break progress while
-           between rounds. -->
-      <span class="play__layer play__arc">
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          <circle class="play__arc-track" cx="50" cy="50" r="46" fill="none"
-                  stroke="rgba(255,255,255,0.12)" stroke-width="2.52"></circle>
-          <circle class="play__arc-fill" id="arc" cx="50" cy="50" r="46" fill="none"
-                  stroke="#3D6BBA" stroke-width="2.52" stroke-linecap="round"
-                  transform="rotate(-90 50 50)"></circle>
-        </svg>
-      </span>
-
-      <span class="play__sway">
-        <span class="play__glyph">
-          <span class="play__triangle">&#9654;</span>
-          <span class="play__pause"><span></span><span></span></span>
-          <span class="play__break" id="break-label"></span>
-        </span>
-      </span>
-    </button>
-
-    <div class="picker">
-      <p class="picker__label">Instant meditation</p>
-
-      <!-- Inner / Outer attention. Port of src/components/AttentionSwitch.tsx:
-           the word is the state carrier, the glyph reinforces it, and a thin
-           accent rule glides under the active one. Each mode has its own (i) so
-           either explanation is reachable whichever mode is active. -->
-      <div class="attention" id="attention">
-        <div class="attention__row" id="attention-row">
-          <button class="attention__opt" type="button" data-attention="inner" aria-pressed="true">
-            <!-- Seated meditating figure — inner attention. -->
-            <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="5.5" r="3" fill="currentColor"></circle>
-              <path d="M12 10.5c-1.9 0-3.6 1.1-4.5 2.8L4.5 18.5h15l-3-5.2c-.9-1.7-2.6-2.8-4.5-2.8z" fill="currentColor"></path>
-            </svg>
-            <span>Inner</span>
-          </button>
-          <button class="attention__info attention__info--gap" type="button"
-                  data-dialog="dialog-inner" aria-label="About inner attention">
-            <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
-              <circle cx="12" cy="7.4" r="1.35" fill="currentColor"></circle>
-              <path d="M10.9 10.9h2.2v6.6h-2.2z" fill="currentColor"></path>
-            </svg>
-          </button>
-          <button class="attention__opt" type="button" data-attention="outer" aria-pressed="false">
-            <!-- Ringed planet — outer attention. Reads as cosmic at 14 px where
-                 a sun's rays would vanish. -->
-            <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="12" r="5" fill="currentColor"></circle>
-              <ellipse cx="12" cy="12" rx="10.5" ry="3.6" fill="none"
-                       stroke="currentColor" stroke-width="1.8"
-                       transform="rotate(-22 12 12)"></ellipse>
-            </svg>
-            <span>Outer</span>
-          </button>
-          <button class="attention__info" type="button"
-                  data-dialog="dialog-outer" aria-label="About outer attention">
-            <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
-              <circle cx="12" cy="7.4" r="1.35" fill="currentColor"></circle>
-              <path d="M10.9 10.9h2.2v6.6h-2.2z" fill="currentColor"></path>
-            </svg>
-          </button>
-        </div>
-        <!-- The only state decoration: JS matches it to the active word's exact
-             extent, so it glides rather than snapping between fixed segments. -->
-        <span class="attention__rule" id="attention-rule"></span>
-      </div>
-
-      <!-- Two groups of three, one per attention. Only the active group is in
-           the document flow; switching crossfades them, mirroring the app,
-           which remounts its pills on the attention change.
-
-           Simple pills carry `data-src`. The 3-round session carries a
-           template instead: `data-round-src` / `data-break-src` with `{n}`
-           substituted per round, `data-rounds` and `data-break-seconds`. Drop
-           `data-break-src` and the break is silent — which is exactly the
-           app's outer session, where the breaks are a minute of silence
-           because the inner break clips announce the next round's object. -->
-      <div class="pills" data-group="inner" role="group" aria-label="Inner attention meditations">
-        <button class="pill" type="button"
-                data-src="assets/audio/inner_1min.mp3"
-                data-title="One minute&nbsp;meditation"
-                data-duration="1 min"
-                aria-pressed="true">
-          <span class="pill__duration">1 min</span>
-          <span class="pill__sub">First practice</span>
-        </button>
-        <button class="pill" type="button"
-                data-src="assets/audio/inner_3min.mp3"
-                data-title="Three minutes&nbsp;meditation"
-                data-duration="3 min"
-                aria-pressed="false">
-          <span class="pill__duration">3 min</span>
-          <span class="pill__sub">Go deeper</span>
-        </button>
-        <button class="pill" type="button"
-                data-rounds="3"
-                data-round-src="assets/audio/inner_3x3_round{n}.mp3"
-                data-break-src="assets/audio/inner_3x3_inter{n}.mp3"
-                data-break-seconds="60"
-                data-title="QM3 &middot; Three&nbsp;rounds"
-                data-duration="11 min"
-                aria-pressed="false">
-          <span class="pill__duration">3 min &times; 3</span>
-          <span class="pill__sub">Rounds practice</span>
-        </button>
-      </div>
-
-      <div class="pills" data-group="outer" role="group" aria-label="Outer attention meditations" hidden>
-        <button class="pill" type="button"
-                data-src="assets/audio/outer_1min.mp3"
-                data-title="One minute&nbsp;meditation"
-                data-duration="1 min"
-                aria-pressed="true">
-          <span class="pill__duration">1 min</span>
-          <span class="pill__sub">First practice</span>
-        </button>
-        <button class="pill" type="button"
-                data-src="assets/audio/outer_3min.mp3"
-                data-title="Three minutes&nbsp;meditation"
-                data-duration="3 min"
-                aria-pressed="false">
-          <span class="pill__duration">3 min</span>
-          <span class="pill__sub">Go deeper</span>
-        </button>
-        <button class="pill" type="button"
-                data-rounds="3"
-                data-round-src="assets/audio/outer_3x3_round{n}.mp3"
-                data-break-seconds="60"
-                data-title="QM3 &middot; Three&nbsp;rounds"
-                data-duration="11 min"
-                aria-pressed="false">
-          <span class="pill__duration">3 min &times; 3</span>
-          <span class="pill__sub">Rounds practice</span>
-        </button>
-      </div>
-    </div>
-  </section>
-
   <section class="links">
-    <!-- allhere.org's own heading above its store badges ("DOWNLOAD THE SILENT
-         MIND APP"), reused verbatim so the ask is worded the same wherever a
-         visitor meets it. "Get to know us" belongs to the link list below. -->
-    <p class="links__label">Download the Silent Mind&nbsp;App</p>
-
-    <div class="stores">
-      <!-- The app's own Start screen in a hand — the same asset the Lounge site
-           puts beside its download links (AllHereLounge/site/silent-mind.html),
-           so it's immediately clear what's being downloaded. It also happens to
-           show the very screen this page is a port of. -->
-      <!-- width/height carry the asset's aspect ratio so the browser reserves the
-           right box before the image loads; the CSS width is what sizes it. -->
-      <img class="stores__phone" src="assets/img/app-phone.jpg" width="290" height="376"
-           alt="The All Here app open on its Start screen">
-      <div class="stores__badges">
-        <!-- Store ids verified against the iTunes lookup API and the live Play
-             listing, and they match what allhere.org and the Lounge site link.
-             No country code on the Apple URL — Apple redirects the visitor to
-             their own storefront, whereas the sites both pin /ch/. -->
-        <a href="https://apps.apple.com/app/id6765625119" target="_blank" rel="noopener">
-          <img src="assets/img/app_store.png" alt="Download All Here on the App Store">
-        </a>
-        <a href="https://play.google.com/store/apps/details?id=org.allhere.silentmind" target="_blank" rel="noopener">
-          <img src="assets/img/google_play.png" alt="Get All Here on Google Play">
-        </a>
-      </div>
-    </div>
-
-    <p class="links__label links__label--section">Get to know&nbsp;us</p>
+    <h2 class="section-title">Get to know&nbsp;us</h2>
 
     <ul class="link-list">
       <li>
@@ -347,10 +135,251 @@
         </a>
       </li>
     </ul>
-
-    <!-- No allhere.org link here: it already has its own row above. -->
-    <p class="footer">All Here &middot; Geneva</p>
   </section>
+
+  <!-- Scroll cue to the second screen, phones only. A plain anchor, so the jump
+       is the browser's own smooth scroll with no script, and it works with JS
+       off. It names its destination: an unlabelled chevron says "there is more"
+       but not what. -->
+  <a class="scroll-cue" href="#practice">
+    <span class="scroll-cue__label">Instant meditation</span>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M6 9l6 6 6-6"></path>
+    </svg>
+  </a>
+
+</div>
+
+<!-- Second screen: the practice itself, then the app it lives in. -->
+<div class="screen" id="practice">
+
+  <section class="hero">
+    <!-- The section's heading, at the same tier as the other two so the three
+         read as siblings — and so nothing inside a section outweighs the heading
+         above it. -->
+    <h2 class="section-title">Instant meditation</h2>
+
+    <!-- Inner / Outer attention. Port of src/components/AttentionSwitch.tsx:
+         the word is the state carrier, the glyph reinforces it, and a thin
+         accent rule glides under the active one. Each mode has its own (i) so
+         either explanation is reachable whichever mode is active. -->
+    <div class="attention" id="attention">
+      <div class="attention__row" id="attention-row">
+        <button class="attention__opt" type="button" data-attention="inner" aria-pressed="true">
+          <!-- Seated meditating figure — inner attention. -->
+          <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="5.5" r="3" fill="currentColor"></circle>
+            <path d="M12 10.5c-1.9 0-3.6 1.1-4.5 2.8L4.5 18.5h15l-3-5.2c-.9-1.7-2.6-2.8-4.5-2.8z" fill="currentColor"></path>
+          </svg>
+          <span>Inner</span>
+        </button>
+        <button class="attention__info attention__info--gap" type="button"
+                data-dialog="dialog-inner" aria-label="About inner attention">
+          <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
+            <circle cx="12" cy="7.4" r="1.35" fill="currentColor"></circle>
+            <path d="M10.9 10.9h2.2v6.6h-2.2z" fill="currentColor"></path>
+          </svg>
+        </button>
+        <button class="attention__opt" type="button" data-attention="outer" aria-pressed="false">
+          <!-- Ringed planet — outer attention. Reads as cosmic at 14 px where a
+               sun's rays would vanish. -->
+          <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="5" fill="currentColor"></circle>
+            <ellipse cx="12" cy="12" rx="10.5" ry="3.6" fill="none"
+                     stroke="currentColor" stroke-width="1.8"
+                     transform="rotate(-22 12 12)"></ellipse>
+          </svg>
+          <span>Outer</span>
+        </button>
+        <button class="attention__info" type="button"
+                data-dialog="dialog-outer" aria-label="About outer attention">
+          <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
+            <circle cx="12" cy="7.4" r="1.35" fill="currentColor"></circle>
+            <path d="M10.9 10.9h2.2v6.6h-2.2z" fill="currentColor"></path>
+          </svg>
+        </button>
+      </div>
+      <!-- The only state decoration: JS matches it to the active word's exact
+           extent, so it glides rather than snapping between fixed segments. -->
+      <span class="attention__rule" id="attention-rule"></span>
+    </div>
+
+    <!-- A readout of what the play button will play, not a heading: it repeats
+         whichever pill is pressed, and during a 3-round session it reports the
+         round. One compact line at the caption tier, so the section heading
+         stays the largest thing in the block. -->
+    <p class="now">
+      <!-- Headphones — the app's KindIcon for an audio track. -->
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path d="M4 14v-2a8 8 0 0 1 16 0v2"></path>
+        <path d="M4 14h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"></path>
+        <path d="M20 14h-2a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1z"></path>
+      </svg>
+      <span id="now-title">One minute&nbsp;meditation</span>
+      <span class="now__dot" aria-hidden="true">&middot;</span>
+      <span id="now-duration">1 min</span>
+    </p>
+
+    <button class="play" id="play" type="button" aria-label="Play the one minute meditation">
+      <!-- Halo: accent-tinted, fully transparent at the centre so the ring
+           outlines it crisply. -->
+      <span class="play__layer play__glow">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <defs>
+            <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"   stop-color="#3D6BBA" stop-opacity="0"></stop>
+              <stop offset="55%"  stop-color="#3D6BBA" stop-opacity="0.06"></stop>
+              <stop offset="92%"  stop-color="#3D6BBA" stop-opacity="0.30"></stop>
+              <stop offset="100%" stop-color="#3D6BBA" stop-opacity="0.45"></stop>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="44.65" fill="url(#halo)"></circle>
+        </svg>
+      </span>
+
+      <!-- Expanding ghost ring — the emanation that says "tap me". -->
+      <span class="play__layer play__ripple">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="46" fill="none" stroke="#3D6BBA" stroke-width="2.16"></circle>
+        </svg>
+      </span>
+
+      <!-- The ring. Hidden during a between-rounds break, where the arc's own
+           neutral track takes over — same swap the app's CircleButton does. -->
+      <span class="play__layer play__ring">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="46" fill="none" stroke="#3D6BBA" stroke-width="2.52" opacity="0.85"></circle>
+        </svg>
+      </span>
+
+      <!-- Progress arc: elapsed audio while playing, break progress while
+           between rounds. -->
+      <span class="play__layer play__arc">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle class="play__arc-track" cx="50" cy="50" r="46" fill="none"
+                  stroke="rgba(255,255,255,0.12)" stroke-width="2.52"></circle>
+          <circle class="play__arc-fill" id="arc" cx="50" cy="50" r="46" fill="none"
+                  stroke="#3D6BBA" stroke-width="2.52" stroke-linecap="round"
+                  transform="rotate(-90 50 50)"></circle>
+        </svg>
+      </span>
+
+      <span class="play__sway">
+        <span class="play__glyph">
+          <span class="play__triangle">&#9654;</span>
+          <span class="play__pause"><span></span><span></span></span>
+          <span class="play__break" id="break-label"></span>
+        </span>
+      </span>
+    </button>
+
+    <!-- Two groups of three, one per attention. Only the active group is in the
+         document flow; switching crossfades them, mirroring the app, which
+         remounts its pills on the attention change.
+
+         Simple pills carry `data-src`. The 3-round session carries a template
+         instead: `data-round-src` / `data-break-src` with `{n}` substituted per
+         round, `data-rounds` and `data-break-seconds`. Drop `data-break-src` and
+         the break is silent — which is exactly the app's outer session, where the
+         breaks are a minute of silence because the inner break clips announce
+         the next round's object. -->
+    <div class="pills" data-group="inner" role="group" aria-label="Inner attention meditations">
+      <button class="pill" type="button"
+              data-src="assets/audio/inner_1min.mp3"
+              data-title="One minute&nbsp;meditation"
+              data-duration="1 min"
+              aria-pressed="true">
+        <span class="pill__duration">1 min</span>
+        <span class="pill__sub">First practice</span>
+      </button>
+      <button class="pill" type="button"
+              data-src="assets/audio/inner_3min.mp3"
+              data-title="Three minutes&nbsp;meditation"
+              data-duration="3 min"
+              aria-pressed="false">
+        <span class="pill__duration">3 min</span>
+        <span class="pill__sub">Go deeper</span>
+      </button>
+      <button class="pill" type="button"
+              data-rounds="3"
+              data-round-src="assets/audio/inner_3x3_round{n}.mp3"
+              data-break-src="assets/audio/inner_3x3_inter{n}.mp3"
+              data-break-seconds="60"
+              data-title="QM3 &middot; Three&nbsp;rounds"
+              data-duration="11 min"
+              aria-pressed="false">
+        <span class="pill__duration">3 min &times; 3</span>
+        <span class="pill__sub">Rounds practice</span>
+      </button>
+    </div>
+
+    <div class="pills" data-group="outer" role="group" aria-label="Outer attention meditations" hidden>
+      <button class="pill" type="button"
+              data-src="assets/audio/outer_1min.mp3"
+              data-title="One minute&nbsp;meditation"
+              data-duration="1 min"
+              aria-pressed="true">
+        <span class="pill__duration">1 min</span>
+        <span class="pill__sub">First practice</span>
+      </button>
+      <button class="pill" type="button"
+              data-src="assets/audio/outer_3min.mp3"
+              data-title="Three minutes&nbsp;meditation"
+              data-duration="3 min"
+              aria-pressed="false">
+        <span class="pill__duration">3 min</span>
+        <span class="pill__sub">Go deeper</span>
+      </button>
+      <button class="pill" type="button"
+              data-rounds="3"
+              data-round-src="assets/audio/outer_3x3_round{n}.mp3"
+              data-break-seconds="60"
+              data-title="QM3 &middot; Three&nbsp;rounds"
+              data-duration="11 min"
+              aria-pressed="false">
+        <span class="pill__duration">3 min &times; 3</span>
+        <span class="pill__sub">Rounds practice</span>
+      </button>
+    </div>
+  </section>
+
+  <section class="app">
+    <!-- allhere.org's own heading above its store badges ("DOWNLOAD THE SILENT
+         MIND APP"), reused verbatim so the ask is worded the same wherever a
+         visitor meets it. -->
+    <h2 class="section-title">Download the Silent Mind&nbsp;App</h2>
+
+    <div class="stores">
+      <!-- The app's own Start screen in a hand — the same asset the Lounge site
+           puts beside its download links (AllHereLounge/site/silent-mind.html),
+           so it's immediately clear what's being downloaded. It also happens to
+           show the very screen this page is a port of.
+           width/height carry the asset's aspect ratio so the browser reserves
+           the right box before the image loads; the CSS width sizes it. -->
+      <img class="stores__phone" src="assets/img/app-phone.jpg" width="290" height="376"
+           alt="The All Here app open on its Start screen">
+      <div class="stores__badges">
+        <!-- Store ids verified against the iTunes lookup API and the live Play
+             listing, and they match what allhere.org and the Lounge site link.
+             No country code on the Apple URL — Apple redirects the visitor to
+             their own storefront, whereas the sites both pin /ch/. -->
+        <a href="https://apps.apple.com/app/id6765625119" target="_blank" rel="noopener">
+          <img src="assets/img/app_store.png" alt="Download All Here on the App Store">
+        </a>
+        <a href="https://play.google.com/store/apps/details?id=org.allhere.silentmind" target="_blank" rel="noopener">
+          <img src="assets/img/google_play.png" alt="Get All Here on Google Play">
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- No allhere.org link here: it already has its own row on the first screen. -->
+  <p class="footer">All Here &middot; Geneva</p>
+
+</div>
 
 </main>
 
