@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>All Here — Start here</title>
-<meta name="description" content="A one-minute guided meditation, the world map of meditators, and everything about All Here.">
+<meta name="description" content="Six guided instant meditations, the world map of meditators, and everything about All Here.">
 <meta name="theme-color" content="#00102E">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 
@@ -12,7 +12,7 @@
      relative paths. Update both when the page moves to allhere.org. -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="All Here — Start here">
-<meta property="og:description" content="A one-minute guided meditation, the world map of meditators, and everything about All Here.">
+<meta property="og:description" content="Six guided instant meditations, the world map of meditators, and everything about All Here.">
 <meta property="og:url" content="https://allheregeneva.github.io/AllHereLinks/">
 <meta property="og:image" content="https://allheregeneva.github.io/AllHereLinks/assets/img/allhere-logo.png">
 <meta name="twitter:card" content="summary">
@@ -24,18 +24,20 @@
 </head>
 <body>
 
-<!-- Animated atmosphere — the app's SPACE shader. Falls back to the body
+<!-- Animated atmosphere — the app's LAKE shader. Falls back to the body
      gradient if WebGL is unavailable (see assets/shader.js). -->
 <canvas id="atmosphere" aria-hidden="true"></canvas>
 
 <main class="page">
 
-  <img class="logo" src="assets/img/allhere-logo.png" alt="All Here">
-
-  <h1 class="title">Your journey to the Silent Mind</h1>
+  <header class="brand">
+    <img class="logo" src="assets/img/allhere-logo.png" alt="All Here">
+    <h1 class="title">Your journey to the Silent Mind</h1>
+  </header>
 
   <section class="hero">
-    <!-- What the play button will play. Kept in sync with the pills below. -->
+    <!-- What the play button will play. Kept in sync with the pills below, and
+         during a 3-round session the meta line shows which round is running. -->
     <div class="now">
       <p class="now__title" id="now-title">One minute meditation</p>
       <p class="now__meta">
@@ -73,16 +75,20 @@
         </svg>
       </span>
 
-      <!-- The ring. -->
+      <!-- The ring. Hidden during a between-rounds break, where the arc's own
+           neutral track takes over — same swap the app's CircleButton does. -->
       <span class="play__layer play__ring">
         <svg viewBox="0 0 100 100" aria-hidden="true">
           <circle cx="50" cy="50" r="46" fill="none" stroke="#3D6BBA" stroke-width="2.52" opacity="0.85"></circle>
         </svg>
       </span>
 
-      <!-- Elapsed arc, drawn over the ring while playing. -->
+      <!-- Progress arc: elapsed audio while playing, break progress while
+           between rounds. -->
       <span class="play__layer play__arc">
         <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle class="play__arc-track" cx="50" cy="50" r="46" fill="none"
+                  stroke="rgba(255,255,255,0.12)" stroke-width="2.52"></circle>
           <circle class="play__arc-fill" id="arc" cx="50" cy="50" r="46" fill="none"
                   stroke="#3D6BBA" stroke-width="2.52" stroke-linecap="round"
                   transform="rotate(-90 50 50)"></circle>
@@ -93,14 +99,73 @@
         <span class="play__glyph">
           <span class="play__triangle">&#9654;</span>
           <span class="play__pause"><span></span><span></span></span>
+          <span class="play__break" id="break-label"></span>
         </span>
       </span>
     </button>
 
     <div class="picker">
       <p class="picker__label">Instant meditation</p>
-      <div class="pills" role="group" aria-label="Choose a meditation length">
-        <button class="pill" type="button" id="pill-1min"
+
+      <!-- Inner / Outer attention. Port of src/components/AttentionSwitch.tsx:
+           the word is the state carrier, the glyph reinforces it, and a thin
+           accent rule glides under the active one. Each mode has its own (i) so
+           either explanation is reachable whichever mode is active. -->
+      <div class="attention" id="attention">
+        <div class="attention__row" id="attention-row">
+          <button class="attention__opt" type="button" data-attention="inner" aria-pressed="true">
+            <!-- Seated meditating figure — inner attention. -->
+            <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="5.5" r="3" fill="currentColor"></circle>
+              <path d="M12 10.5c-1.9 0-3.6 1.1-4.5 2.8L4.5 18.5h15l-3-5.2c-.9-1.7-2.6-2.8-4.5-2.8z" fill="currentColor"></path>
+            </svg>
+            <span>Inner</span>
+          </button>
+          <button class="attention__info attention__info--gap" type="button"
+                  data-dialog="dialog-inner" aria-label="About inner attention">
+            <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
+              <circle cx="12" cy="7.4" r="1.35" fill="currentColor"></circle>
+              <path d="M10.9 10.9h2.2v6.6h-2.2z" fill="currentColor"></path>
+            </svg>
+          </button>
+          <button class="attention__opt" type="button" data-attention="outer" aria-pressed="false">
+            <!-- Ringed planet — outer attention. Reads as cosmic at 14 px where
+                 a sun's rays would vanish. -->
+            <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="5" fill="currentColor"></circle>
+              <ellipse cx="12" cy="12" rx="10.5" ry="3.6" fill="none"
+                       stroke="currentColor" stroke-width="1.8"
+                       transform="rotate(-22 12 12)"></ellipse>
+            </svg>
+            <span>Outer</span>
+          </button>
+          <button class="attention__info" type="button"
+                  data-dialog="dialog-outer" aria-label="About outer attention">
+            <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
+              <circle cx="12" cy="7.4" r="1.35" fill="currentColor"></circle>
+              <path d="M10.9 10.9h2.2v6.6h-2.2z" fill="currentColor"></path>
+            </svg>
+          </button>
+        </div>
+        <!-- The only state decoration: JS matches it to the active word's exact
+             extent, so it glides rather than snapping between fixed segments. -->
+        <span class="attention__rule" id="attention-rule"></span>
+      </div>
+
+      <!-- Two groups of three, one per attention. Only the active group is in
+           the document flow; switching crossfades them, mirroring the app,
+           which remounts its pills on the attention change.
+
+           Simple pills carry `data-src`. The 3-round session carries a
+           template instead: `data-round-src` / `data-break-src` with `{n}`
+           substituted per round, `data-rounds` and `data-break-seconds`. Drop
+           `data-break-src` and the break is silent — which is exactly the
+           app's outer session, where the breaks are a minute of silence
+           because the inner break clips announce the next round's object. -->
+      <div class="pills" data-group="inner" role="group" aria-label="Inner attention meditations">
+        <button class="pill" type="button"
                 data-src="assets/audio/inner_1min.mp3"
                 data-title="One minute meditation"
                 data-duration="1 min"
@@ -108,13 +173,53 @@
           <span class="pill__duration">1 min</span>
           <span class="pill__sub">First practice</span>
         </button>
-        <button class="pill" type="button" id="pill-3min"
+        <button class="pill" type="button"
                 data-src="assets/audio/inner_3min.mp3"
                 data-title="Three minutes meditation"
                 data-duration="3 min"
                 aria-pressed="false">
           <span class="pill__duration">3 min</span>
           <span class="pill__sub">Go deeper</span>
+        </button>
+        <button class="pill" type="button"
+                data-rounds="3"
+                data-round-src="assets/audio/inner_3x3_round{n}.mp3"
+                data-break-src="assets/audio/inner_3x3_inter{n}.mp3"
+                data-break-seconds="60"
+                data-title="QM3 &middot; Three rounds"
+                data-duration="11 min"
+                aria-pressed="false">
+          <span class="pill__duration">3 min &times; 3</span>
+          <span class="pill__sub">Rounds practice</span>
+        </button>
+      </div>
+
+      <div class="pills" data-group="outer" role="group" aria-label="Outer attention meditations" hidden>
+        <button class="pill" type="button"
+                data-src="assets/audio/outer_1min.mp3"
+                data-title="One minute meditation"
+                data-duration="1 min"
+                aria-pressed="true">
+          <span class="pill__duration">1 min</span>
+          <span class="pill__sub">First practice</span>
+        </button>
+        <button class="pill" type="button"
+                data-src="assets/audio/outer_3min.mp3"
+                data-title="Three minutes meditation"
+                data-duration="3 min"
+                aria-pressed="false">
+          <span class="pill__duration">3 min</span>
+          <span class="pill__sub">Go deeper</span>
+        </button>
+        <button class="pill" type="button"
+                data-rounds="3"
+                data-round-src="assets/audio/outer_3x3_round{n}.mp3"
+                data-break-seconds="60"
+                data-title="QM3 &middot; Three rounds"
+                data-duration="11 min"
+                aria-pressed="false">
+          <span class="pill__duration">3 min &times; 3</span>
+          <span class="pill__sub">Rounds practice</span>
         </button>
       </div>
     </div>
@@ -124,17 +229,25 @@
     <p class="links__label">Get to know us</p>
 
     <div class="stores">
-      <!-- Store ids verified against the iTunes lookup API and the live Play
-           listing. No country code on the Apple URL — Apple redirects the
-           visitor to their own storefront. NB: allhere.org currently links a
-           stale App Store id (6746474674) and Play package (com.allhere.allhere);
-           both 404. The real ones are below. -->
-      <a href="https://apps.apple.com/app/id6765625119" target="_blank" rel="noopener">
-        <img src="assets/img/app_store.png" alt="Download All Here on the App Store">
-      </a>
-      <a href="https://play.google.com/store/apps/details?id=org.allhere.silentmind" target="_blank" rel="noopener">
-        <img src="assets/img/google_play.png" alt="Get All Here on Google Play">
-      </a>
+      <!-- The app's own Start screen in a hand — the same asset the Lounge site
+           puts beside its download links (AllHereLounge/site/silent-mind.html),
+           so it's immediately clear what's being downloaded. It also happens to
+           show the very screen this page is a port of. -->
+      <img class="stores__phone" src="assets/img/app-phone.jpg" width="104" height="208"
+           alt="The All Here app open on its Start screen">
+      <div class="stores__badges">
+        <!-- Store ids verified against the iTunes lookup API and the live Play
+             listing. No country code on the Apple URL — Apple redirects the
+             visitor to their own storefront. NB: allhere.org's footer still
+             links a stale App Store id (6746474674) and Play package
+             (com.allhere.allhere); both 404. The Lounge site has them right. -->
+        <a href="https://apps.apple.com/app/id6765625119" target="_blank" rel="noopener">
+          <img src="assets/img/app_store.png" alt="Download All Here on the App Store">
+        </a>
+        <a href="https://play.google.com/store/apps/details?id=org.allhere.silentmind" target="_blank" rel="noopener">
+          <img src="assets/img/google_play.png" alt="Get All Here on Google Play">
+        </a>
+      </div>
     </div>
 
     <ul class="link-list">
@@ -149,8 +262,15 @@
           </span>
           <span class="link__text">
             <span class="link__title">World map of meditators</span>
-            <span class="link__sub">The live Concentration &amp; Mindfulness Index, worldwide</span>
+            <!-- Non-breaking space so the label wraps as "Live Concentration &amp; /
+                 Mindfulness Index" instead of orphaning "Index" on its own line
+                 in the narrow column next to the thumbnail. -->
+            <span class="link__sub">Live Concentration &amp; Mindfulness&nbsp;Index</span>
           </span>
+          <!-- A crop of the live leaderboard, so the row shows what it opens.
+               Regenerate with the recipe in the README when the map changes. -->
+          <img class="link__thumb" src="assets/img/worldmap.png" width="104" height="61"
+               alt="" aria-hidden="true">
           <span class="link__chevron" aria-hidden="true">&rsaquo;</span>
         </a>
       </li>
@@ -232,15 +352,37 @@
       </li>
     </ul>
 
-    <p class="footer">
-      All Here &middot; Geneva &nbsp;&middot;&nbsp; <a href="https://allhere.org/" target="_blank" rel="noopener">allhere.org</a>
-    </p>
+    <!-- No allhere.org link here: it already has its own row above. -->
+    <p class="footer">All Here &middot; Geneva</p>
   </section>
 
 </main>
 
-<!-- Audio element is created and driven from links.js (preload none, so a QR
-     scan doesn't pull megabytes before anyone presses play). -->
+<!-- Attention explanations. Copy is verbatim from the app's
+     src/content/copy.json (`attention.inner` / `attention.outer`), so the two
+     surfaces say the same thing. Native <dialog>: Esc and backdrop click close
+     it, and focus is trapped, with no code of ours. -->
+<dialog class="sheet" id="dialog-inner">
+  <h2 class="sheet__title">Inner Attention</h2>
+  <p class="sheet__subtitle">Mind Body practice</p>
+  <div class="sheet__body">
+    <p>In this practice, attention is turned inward toward observing one’s own body and the breathing process. Inward looking meditation of observing the breathing body is universally practiced across many major traditions.</p>
+    <p>Here we build it up progressively from one minute to multiple rounds of 3 minutes.</p>
+  </div>
+  <button class="sheet__close" type="button" data-close>Close</button>
+</dialog>
+
+<dialog class="sheet" id="dialog-outer">
+  <h2 class="sheet__title">Outer Attention</h2>
+  <p class="sheet__subtitle">Celestial objects &amp; space</p>
+  <div class="sheet__body">
+    <p>In this section, the meditations are centered on three celestial objects: the Sun, the Moon, and a single star.</p>
+    <p>Meditation on these three cosmic objects is derived from the yogic practice of samyama, a method that combines concentration (dharana), meditation (dhyana), and absorption (samadhi). According to the yogic tradition, practicing samyama on these celestial bodies cultivates specific forms of insight and higher knowledge.</p>
+    <p>Meditation on cosmic depth concludes the sequence.</p>
+  </div>
+  <button class="sheet__close" type="button" data-close>Close</button>
+</dialog>
+
 <script src="assets/links.js"></script>
 <script src="assets/shader.js"></script>
 </body>

@@ -1,11 +1,14 @@
 /**
  * All Here — QR landing page.
  *
- * Design is a port of the app's Start screen (AllHereApp/app/(tabs)/index.tsx
- * + src/components/CircleButton.tsx). Tokens below are copied from
- * AllHereApp/src/theme/index.ts so the two surfaces stay in lockstep; the
- * play button's animation durations and amplitudes are copied from
- * CircleButton so the ring breathes at exactly the same rhythm.
+ * Design is a port of the app's Start screen (AllHereApp/app/(tabs)/index.tsx,
+ * src/components/CircleButton.tsx, src/components/AttentionSwitch.tsx). Tokens
+ * below are copied from AllHereApp/src/theme/index.ts so the two surfaces stay
+ * in lockstep; the play button's animation durations and amplitudes are copied
+ * from CircleButton so the ring breathes at exactly the same rhythm.
+ *
+ * Layout: one column on phones, two columns from 980px — hero on the left,
+ * links on the right, the whole page centred in the viewport.
  */
 
 :root {
@@ -19,8 +22,8 @@
   --border-strong: rgba(255, 255, 255, 0.25);
   /* Hairline separator used by every list surface in the app. */
   --separator: rgba(255, 255, 255, 0.09);
-  /* START_BLUE — the Start tab's fixed accent. The big play button keeps
-     this colour regardless of journey progression (app/(tabs)/index.tsx). */
+  /* START_BLUE — the Start tab's fixed accent. The big play button keeps this
+     colour regardless of journey progression (app/(tabs)/index.tsx). */
   --accent: #3D6BBA;
 
   --sp-xs: 4px;
@@ -37,12 +40,15 @@
      text stays legible when a bright patch of the shader sits behind it. */
   --text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
 
+  /* easeInOutSine — the curve behind the app's breath / glow / sway loops. */
+  --ease-sine: cubic-bezier(0.37, 0, 0.63, 1);
+
   /* Play button diameter. The app derives it from viewport height
      (clamp 120–160 on phones, up to 240 on tablets); same shape here. */
   --play-size: clamp(120px, 18vh, 160px);
 
-  /* Reading column cap — the app stops content stretching past a
-     comfortable width on tablets / desktop. */
+  /* Reading column cap — the app stops content stretching past a comfortable
+     width. Widened at each breakpoint below. */
   --column-max: 460px;
 }
 
@@ -50,8 +56,8 @@
 *::before,
 *::after { box-sizing: border-box; }
 
-/* No overflow / contain / filter on <html> or <body>: either one would make
-   them the containing block for position:fixed descendants, which detaches
+/* No overflow / contain / filter on <html> or <body>: any of them would make
+   the element a containing block for position:fixed descendants, which detaches
    the atmosphere canvas from the viewport and scrolls it off the page. */
 html { -webkit-text-size-adjust: 100%; }
 
@@ -60,13 +66,12 @@ body {
   min-height: 100%;
   /* Painted background is the shader's fallback: if WebGL is unavailable or
      blocked, this gradient stays visible instead of a black page. Matches
-     AtmosphereBackground's FALLBACK_COLORS.space. */
-  background: radial-gradient(circle at 50% 38%, #1A0F3A 0%, #05030F 70%, var(--bg-deep) 100%);
+     AtmosphereBackground's FALLBACK_COLORS.lake. */
+  background: radial-gradient(circle at 50% 45%, #0A2A33 0%, #041A22 60%, #02121A 100%);
   color: var(--text);
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 400;
   text-shadow: var(--text-shadow);
-  /* The shader canvas is fixed behind everything; the page scrolls over it. */
   overscroll-behavior-y: none;
 }
 
@@ -92,18 +97,25 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Fill at least the viewport so the hero reads as a full screen on a
-     phone, with the links starting just at/below the fold. */
+  /* Fill at least the viewport so the hero reads as a full screen on a phone,
+     with the links starting just at/below the fold. */
   min-height: 100svh;
 }
 
 /* --- header ----------------------------------------------------------- */
 
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
 .logo {
+  /* The official All Here logo PNG, as shipped in the app. Never redrawn. */
   width: min(200px, 56vw);
   height: auto;
   margin-top: var(--sp-md);
-  /* The official All Here logo PNG, as shipped in the app. Never redrawn. */
 }
 
 .title {
@@ -118,18 +130,14 @@ body {
   padding: 0 var(--sp-sm);
 }
 
-@media (min-width: 640px) {
-  .title { font-size: 26px; line-height: 32px; letter-spacing: 1.2px; }
-}
-
-/* --- hero (selected meditation + play button) -------------------------- */
+/* --- hero (selected meditation + play button + picker) ----------------- */
 
 .hero {
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Absorbs the surplus height on tall screens so the button sits
-     visually centred-low, like the app's flex spacers do. */
+  /* Absorbs the surplus height on tall screens so the button sits visually
+     centred-low, like the app's flex spacers do. */
   flex: 1 0 auto;
   justify-content: center;
   gap: var(--sp-md);
@@ -137,8 +145,9 @@ body {
   width: 100%;
 }
 
-/* Track name + duration, sitting a fixed distance above the circle —
-   same block the app anchors above its CircleButton. */
+/* Track name + duration, sitting a fixed distance above the circle — same
+   block the app anchors above its CircleButton. During a rounds session the
+   meta line reads "Round 2 of 3" / "Break" instead of the total duration. */
 .now {
   text-align: center;
   min-height: 48px;
@@ -157,6 +166,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
+  margin: 0;
   color: var(--text-muted);
   font-size: 12px;
   letter-spacing: 0.3px;
@@ -165,8 +175,8 @@ body {
 .now__meta svg { display: block; }
 
 /* --- play button (port of src/components/CircleButton.tsx) -------------
-   Geometry is expressed in a 0 0 100 100 viewBox so every radius scales
-   with --play-size exactly as the app's size-relative maths does:
+   Geometry is expressed in a 0 0 100 100 viewBox so every radius scales with
+   --play-size exactly as the app's size-relative maths does:
      innerR = size * 0.46   -> r 46
      stroke = size * 0.018  -> 1.8
      ring   = stroke * 1.4  -> 2.52
@@ -209,48 +219,53 @@ body {
   display: block;
 }
 
-/* Inward radial-gradient halo, accent-tinted, transparent at the centre so
-   the ring outlines it crisply. Pulses on its own 2700 ms period. */
-.play__glow { animation: glow-pulse 2700ms var(--ease-sine, cubic-bezier(0.37, 0, 0.63, 1)) infinite alternate; }
+/* Inward radial-gradient halo, accent-tinted, transparent at the centre so the
+   ring outlines it crisply. Pulses on its own 2700 ms period. */
+.play__glow { animation: glow-pulse 2700ms var(--ease-sine) infinite alternate; }
 
-/* Ghost copy of the ring drifting outward — the "tap me" emanation. Runs
-   only in the idle state (see .is-playing below). */
+/* Ghost copy of the ring drifting outward — the "tap me" emanation. Runs only
+   in the idle state (see .is-playing below). */
 .play__ripple { animation: ripple 4800ms cubic-bezier(0.5, 1, 0.89, 1) infinite; }
 
-/* The ring itself: scales ±5% and fades 0.55 -> 1 with the breath. */
-.play__ring { animation: breath 3600ms cubic-bezier(0.37, 0, 0.63, 1) infinite alternate; }
+/* The ring: scales ±5% and fades 0.55 -> 1 with the breath. */
+.play__ring { animation: breath 3600ms var(--ease-sine) infinite alternate; }
 
-/* Elapsed-progress arc, only drawn while playing. */
+/* Elapsed-progress arc — audio position while playing, break progress while
+   between rounds. */
 .play__arc { opacity: 0; transition: opacity 400ms ease; }
 .play.is-playing .play__arc { opacity: 1; }
 
+/* Neutral track behind the arc. Only needed during a break, where the ring is
+   hidden; while playing, the ring itself reads as the track. */
+.play__arc-track { opacity: 0; }
+
 .play__arc-fill {
-  /* 2 * PI * 46 = 289.03 — set as the dash array so stroke-dashoffset
-     maps linearly to elapsed fraction (driven from links.js). */
+  /* 2 * PI * 46 = 289.03 — set as the dash array so stroke-dashoffset maps
+     linearly to elapsed fraction (driven from links.js). */
   stroke-dasharray: 289.03;
   stroke-dashoffset: 289.03;
   transition: stroke-dashoffset 250ms linear;
 }
 
-/* Glyph rides the breath (scale) and the slow sway (rotate) — two
-   animations, so two nested elements. */
+/* Glyph rides the breath (scale) and the slow sway (rotate) — two animations,
+   so two nested elements. */
 .play__sway {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
   pointer-events: none;
-  animation: sway 9000ms cubic-bezier(0.37, 0, 0.63, 1) infinite alternate;
+  animation: sway 9000ms var(--ease-sine) infinite alternate;
 }
 
 .play__glyph {
   display: grid;
   place-items: center;
-  animation: glyph-breath 3600ms cubic-bezier(0.37, 0, 0.63, 1) infinite alternate;
+  animation: glyph-breath 3600ms var(--ease-sine) infinite alternate;
 }
 
-/* Play triangle — the small left margin compensates its optical asymmetry
-   so it reads as centred, same trick as the app. */
+/* Play triangle — the small left margin compensates its optical asymmetry so it
+   reads as centred, same trick as the app. */
 .play__triangle {
   font-size: calc(var(--play-size) * 0.21);
   line-height: 1;
@@ -272,15 +287,34 @@ body {
   opacity: 0.9;
 }
 
+/* Between-rounds countdown — type.display at the app's break-timer size. */
+.play__break {
+  display: none;
+  font-weight: 900;
+  font-size: calc(var(--play-size) * 0.175);
+  letter-spacing: 1px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
 .play.is-playing .play__triangle { display: none; }
 .play.is-playing .play__pause { display: flex; }
 
-/* Playing state — the app mutes the breath to 45 % intensity, stops the
-   sway entirely (the audio itself is the motion) and drops the ripple. */
+/* Playing state — the app mutes the breath to 45 % intensity, stops the sway
+   entirely (the audio itself is the motion) and drops the ripple. */
 .play.is-playing .play__ring { animation-name: breath-muted; }
 .play.is-playing .play__glyph { animation-name: glyph-breath-muted; }
 .play.is-playing .play__sway { animation: none; }
 .play.is-playing .play__ripple { opacity: 0; animation: none; }
+
+/* Break state. Must come after the .is-playing block (equal specificity, so
+   source order decides): a break is also "playing", but the app's break mode
+   replaces the ring with the progress arc and turns the halo off. */
+.play.is-break .play__ring { display: none; }
+.play.is-break .play__glow { opacity: 0; animation: none; }
+.play.is-break .play__arc-track { opacity: 1; }
+.play.is-break .play__pause { display: none; }
+.play.is-break .play__break { display: block; }
 
 @keyframes breath {
   from { transform: scale(1);    opacity: 0.55; }
@@ -321,15 +355,90 @@ body {
 .picker { width: 100%; text-align: center; }
 
 .picker__label {
-  /* type.overline — reserved for true state labels; a section label like
-     this is the app's own usage on the Start screen. */
+  /* type.overline — the app's own usage for this Start-screen label. */
   font-weight: 600;
   font-size: 11px;
   letter-spacing: 1.6px;
   text-transform: uppercase;
   color: var(--text-muted);
-  margin: 0 0 var(--sp-md);
+  margin: 0 0 var(--sp-sm);
 }
+
+/* --- attention switch (port of src/components/AttentionSwitch.tsx) -----
+   Minimal by design: no track, no fill, no halo — just the two words, each with
+   a small glyph, and a thin accent rule that glides under the active one. The
+   WORD is the state carrier; the glyph reinforces it. */
+
+.attention {
+  display: inline-block;
+  position: relative;
+  padding-bottom: 7px;
+  margin: 0 auto var(--sp-md);
+}
+
+/* Spacing is asymmetric on purpose: a word sits tight against its own (i), and
+   the two pairs are pushed well apart, so it's obvious which (i) belongs to
+   which word. */
+.attention__row {
+  display: flex;
+  align-items: center;
+}
+
+.attention__opt {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 2px 4px;
+  margin-right: 4px;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  letter-spacing: 0.4px;
+  color: var(--text-dim);
+  text-shadow: var(--text-shadow);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 260ms ease;
+}
+
+.attention__opt[aria-pressed='true'] { color: var(--text); }
+
+.attention__opt svg { display: block; }
+
+.attention__info {
+  display: grid;
+  place-items: center;
+  padding: 2px;
+  border: 0;
+  background: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.attention__info:hover { color: var(--text-muted); }
+.attention__info:active { opacity: 0.5; }
+
+/* The wide separation between the two pairs. */
+.attention__info--gap { margin-right: 42px; }
+
+/* The only state decoration. Width and offset are measured in JS from the
+   active word, so the rule matches its exact extent and glides between them. */
+.attention__rule {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 0;
+  border-radius: 1px;
+  background: var(--accent);
+  opacity: 0;
+  transition: transform 260ms cubic-bezier(0.33, 1, 0.68, 1),
+              width 260ms cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+/* --- pills ------------------------------------------------------------ */
 
 .pills {
   display: flex;
@@ -337,30 +446,44 @@ body {
   gap: var(--sp-sm);
 }
 
+/* `display: flex` above would otherwise beat the UA's [hidden] rule, leaving
+   both attention groups on screen at once. */
+.pills[hidden] { display: none; }
+
+/* Crossfade on the attention switch — matches the app's FadeIn(200) when it
+   remounts the pills. */
+.pills--enter { animation: pills-in 200ms ease; }
+
+@keyframes pills-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 .pill {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 96px;
+  min-width: 92px;
   padding: 8px 12px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-pill);
   background: rgba(157, 138, 232, 0.04);
   color: var(--text);
   font-family: inherit;
+  text-shadow: var(--text-shadow);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  /* Soft accent glow in the same direction as the button's halo, scaled
-     down so the pills feel related without competing with the CTA. */
+  /* Soft accent glow in the same direction as the button's halo, scaled down so
+     the pills feel related without competing with the CTA. */
   box-shadow: 0 0 12px rgba(61, 107, 186, 0.35);
   transition: background 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }
 
 .pill:active { opacity: 0.7; }
 
-/* Selected state. The app's pills each launch their own track, so it has
-   no selected state; here they pick what the single play button will play,
-   so the current choice has to be legible. */
+/* Selected state. The app's pills each launch their own track, so it has no
+   selected state; here they pick what the single play button will play, so the
+   current choice has to be legible. */
 .pill[aria-pressed='true'] {
   border-color: var(--accent);
   background: rgba(61, 107, 186, 0.18);
@@ -372,6 +495,7 @@ body {
   font-size: 13px;
   line-height: 16px;
   letter-spacing: 0.4px;
+  white-space: nowrap;
 }
 
 .pill__sub {
@@ -381,6 +505,63 @@ body {
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.72);
   margin-top: 2px;
+  white-space: nowrap;
+}
+
+/* --- attention info sheets -------------------------------------------- */
+
+.sheet {
+  width: min(420px, calc(100vw - 2 * var(--sp-lg)));
+  max-height: min(80svh, 640px);
+  padding: var(--sp-lg);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-lg);
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  text-shadow: var(--text-shadow);
+  overflow-y: auto;
+}
+
+.sheet::backdrop { background: rgba(0, 0, 0, 0.72); }
+
+.sheet__title {
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Sits directly under the title in the secondary tone: it names the family of
+   practice rather than repeating the heading. */
+.sheet__subtitle {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin: 2px 0 var(--sp-md);
+}
+
+.sheet__body { color: var(--text-muted); }
+
+.sheet__body p {
+  font-size: 14px;
+  line-height: 21px;
+  margin: 0 0 var(--sp-md);
+}
+
+.sheet__body p:last-child { margin-bottom: 0; }
+
+.sheet__close {
+  display: block;
+  margin: var(--sp-md) 0 0 auto;
+  padding: var(--sp-sm);
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-family: inherit;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  cursor: pointer;
 }
 
 /* --- links ------------------------------------------------------------ */
@@ -391,17 +572,17 @@ body {
   margin-top: var(--sp-xxl);
 }
 
-/* Scrim behind the link list. The shader's milky-way band is bright enough
-   in places that 15 px labels over it get tiring to read; the app solves the
+/* Scrim behind the link list. The shader is dark but not uniformly so, and
+   15 px labels over a moving surface get tiring to read; the app solves the
    same problem by stacking two flat dark overlays over its video background
-   (VideoBackground.tsx). Here it's scoped to the list and fades in from the
-   top so the hero keeps the atmosphere unclouded. */
+   (VideoBackground.tsx). Scoped to the list and fading in from the top so the
+   hero keeps the atmosphere unclouded. */
 .links::before {
   content: '';
   position: absolute;
   /* Bleeds into the page's own side padding, so on a phone (where the column
-     spans the viewport) it reaches the screen edges — without a 100vw
-     overhang that would need an overflow rule on an ancestor. */
+     spans the viewport) it reaches the screen edges — without a 100vw overhang
+     that would need an overflow rule on an ancestor. */
   inset: 0 calc(var(--sp-lg) * -1) calc(var(--sp-xxl) * -1);
   z-index: -1;
   background: linear-gradient(
@@ -410,9 +591,8 @@ body {
     rgba(0, 8, 35, 0.58) 72px,
     rgba(0, 8, 35, 0.58) 100%
   );
-  /* Feather the left and right edges. Barely noticeable on a phone; on a wide
-     screen it's what keeps the scrim from reading as a dark rectangle pasted
-     over the sky. */
+  /* Feather the left and right edges so the scrim never reads as a dark
+     rectangle pasted over the water. */
   -webkit-mask-image: linear-gradient(to right, transparent 0, #000 12%, #000 88%, transparent 100%);
           mask-image: linear-gradient(to right, transparent 0, #000 12%, #000 88%, transparent 100%);
   pointer-events: none;
@@ -428,32 +608,49 @@ body {
   margin: 0 0 var(--sp-md);
 }
 
-/* Store badges — the two official artworks, side by side. */
+/* App shot + the two official store badges, stacked beside it. */
 .stores {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: var(--sp-sm);
+  gap: var(--sp-md);
   margin-bottom: var(--sp-lg);
 }
 
-.stores a {
+.stores__phone {
   display: block;
-  flex: 0 1 auto;
+  flex: none;
+  width: 88px;
+  height: auto;
+  border-radius: 10px;
+  /* The asset carries its own navy backdrop, so it would otherwise read as a
+     hard rectangle over the water; the rounded corners and soft shadow make it
+     read as a deliberately framed shot. */
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+}
+
+.stores__badges {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+
+.stores__badges a {
+  display: block;
   transition: opacity 200ms ease;
 }
 
-.stores a:hover { opacity: 0.78; }
+.stores__badges a:hover { opacity: 0.78; }
 
-.stores img {
+.stores__badges img {
   display: block;
-  height: 44px;
+  height: 42px;
   width: auto;
 }
 
-/* Link rows. The app's list surfaces are borderless with a hairline
-   separator (rgba(255,255,255,0.09)) and an optional 4 px accent rail on
-   the left for per-row identity. */
+/* Link rows. The app's list surfaces are borderless with a hairline separator
+   (rgba(255,255,255,0.09)) and an optional 4 px accent rail on the left for
+   per-row identity. */
 .link-list {
   list-style: none;
   margin: 0;
@@ -509,12 +706,25 @@ body {
   margin-top: 1px;
 }
 
+/* Preview of the destination — currently just the world map, whose row earns it
+   because the map is the draw. Sized in CSS px at half the asset's pixels so it
+   stays crisp on a 2× screen. */
+.link__thumb {
+  display: block;
+  flex: none;
+  width: 84px;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid var(--separator);
+}
+
 .link__chevron { flex: none; color: var(--text-dim); font-size: 18px; line-height: 1; }
 
 /* --- footer ----------------------------------------------------------- */
 
 .footer {
   margin-top: var(--sp-xl);
+  margin-bottom: 0;
   text-align: center;
   font-size: 12px;
   letter-spacing: 0.3px;
@@ -524,10 +734,74 @@ body {
 .footer a { color: var(--text-muted); text-decoration: none; }
 .footer a:hover { text-decoration: underline; }
 
+/* --- wider viewports --------------------------------------------------
+   Tablets and small laptops get a roomier single column; from 980px the page
+   splits so the hero and the links sit side by side and the whole thing fits
+   one screen without scrolling. */
+
+@media (min-width: 640px) {
+  :root { --column-max: 580px; }
+  .title { font-size: 26px; line-height: 32px; letter-spacing: 1.2px; }
+  .stores__badges img { height: 46px; }
+  .stores__phone { width: 100px; }
+  .link__thumb { width: 104px; }
+}
+
+@media (min-width: 980px) {
+  :root {
+    --column-max: 1120px;
+    --play-size: clamp(150px, 22vh, 210px);
+  }
+
+  .page {
+    display: grid;
+    /* Hero a touch wider than the links so the button stays the focal point. */
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    /* Both rows `auto`, never `1fr`: a fractional row would swallow all the
+       free space and leave `align-content` nothing to distribute, which pins
+       the brand to the top of the window instead of centring the stack. */
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      'brand links'
+      'hero  links';
+    column-gap: clamp(40px, 5vw, 88px);
+    /* `min-height` (not height) above means the grid grows when the content is
+       taller than the viewport, so centring here can't push anything out of
+       reach on a short window. */
+    align-content: center;
+    padding: var(--sp-xl) var(--sp-xl);
+  }
+
+  .brand { grid-area: brand; }
+  .hero  { grid-area: hero; padding-top: var(--sp-lg); }
+
+  .links {
+    grid-area: links;
+    align-self: center;
+    margin-top: 0;
+    /* A floating glass panel replaces the full-width scrim — the same grammar
+       as the leaderboard's standings panel. */
+    padding: var(--sp-lg) var(--sp-lg) var(--sp-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: rgba(0, 8, 35, 0.42);
+  }
+
+  .links::before { display: none; }
+
+  /* The panel has to clear a 1280×800 laptop without the page scrolling, and
+     the app shot is the tallest thing in it — so it goes back to phone size
+     here and the rows give up a few pixels of their padding. */
+  .stores__phone { width: 84px; }
+  .link { padding: 13px var(--sp-sm); }
+
+  .logo { margin-top: 0; }
+}
+
 /* --- reduced motion ---------------------------------------------------
    Honour the OS setting: hold the ring, halo and glyph still, and drop the
-   ripple. The shader keeps running — it's the page's background image and
-   its motion is slow and non-vestibular — but the button stops pulsing.  */
+   ripple. The shader keeps running — it's the page's background image and its
+   motion is slow and non-vestibular — but the button stops pulsing. */
 @media (prefers-reduced-motion: reduce) {
   .play__glow,
   .play__ring,
@@ -537,4 +811,6 @@ body {
   .play__ring { opacity: 1; }
   .play__ripple { display: none; }
   .play__arc-fill { transition: none; }
+  .pills--enter { animation: none; }
+  .attention__rule { transition: none; }
 }
