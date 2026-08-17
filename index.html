@@ -233,7 +233,9 @@
            puts beside its download links (AllHereLounge/site/silent-mind.html),
            so it's immediately clear what's being downloaded. It also happens to
            show the very screen this page is a port of. -->
-      <img class="stores__phone" src="assets/img/app-phone.jpg" width="104" height="208"
+      <!-- width/height carry the asset's aspect ratio so the browser reserves the
+           right box before the image loads; the CSS width is what sizes it. -->
+      <img class="stores__phone" src="assets/img/app-phone.jpg" width="290" height="376"
            alt="The All Here app open on its Start screen">
       <div class="stores__badges">
         <!-- Store ids verified against the iTunes lookup API and the live Play

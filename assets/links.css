@@ -645,7 +645,10 @@ body {
 .stores__phone {
   display: block;
   flex: none;
-  width: 88px;
+  /* Wider than the phone alone would need, because the asset is the full
+     composition (hand, phone and the navy glow around them) rather than a crop —
+     at a narrower width the screen itself stops being readable. */
+  width: 132px;
   height: auto;
   border-radius: 10px;
   /* The asset carries its own navy backdrop, so it would otherwise read as a
@@ -768,7 +771,7 @@ body {
   :root { --column-max: 580px; }
   .title { font-size: 26px; line-height: 32px; letter-spacing: 1.2px; }
   .stores__badges img { height: 46px; }
-  .stores__phone { width: 100px; }
+  .stores__phone { width: 148px; }
   .link__thumb { width: 104px; }
 }
 
@@ -815,9 +818,9 @@ body {
   .links::before { display: none; }
 
   /* The panel has to clear a 1280×800 laptop without the page scrolling, and
-     the app shot is the tallest thing in it — so it goes back to phone size
-     here and the rows give up a few pixels of their padding. */
-  .stores__phone { width: 84px; }
+     the app shot is the tallest thing in it — so it goes back to the narrow
+     width here and the rows give up a few pixels of their padding. */
+  .stores__phone { width: 132px; }
   .link { padding: 13px var(--sp-sm); }
 
   .logo { margin-top: 0; }
