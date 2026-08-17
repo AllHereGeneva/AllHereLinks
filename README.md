@@ -170,13 +170,18 @@ to be updated:
 Everything else (fonts from Google Fonts, the world map link, the store links)
 works unchanged.
 
-### One thing to fix upstream
+### Store ids
 
-allhere.org's footer links a **stale App Store id (`6746474674`) and Play package
-(`com.allhere.allhere`)** — both 404. The real ones, verified against the iTunes
-lookup API and the live Play listing and used here, are `id6765625119` and
-`org.allhere.silentmind`. The Lounge site (`silent-mind.html`) already has them
-right; only allhere.org is wrong.
+`id6765625119` and `org.allhere.silentmind`, verified against the iTunes lookup
+API and the live Play listing. Same ids the live allhere.org footer and the
+Lounge site (`silent-mind.html`) use; this page just omits the `/ch/` storefront
+so Apple redirects each visitor to their own.
+
+A **stale** pair (`6746474674` / `com.allhere.allhere`, both 404) is still hard-coded
+in two places that haven't shipped or aren't public:
+`_WIP/allhere-website/src/pages/` (the unreleased Astro rebuild — `index.astro`,
+`the-practice/silent-mind-app.astro`, `the-technology/silent-mind-xr.astro`) and
+`XRPlatform_Doc/index.html`. Worth fixing there before that rebuild goes live.
 
 ---
 
