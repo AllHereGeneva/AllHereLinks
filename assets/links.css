@@ -633,6 +633,10 @@ body {
   margin: 0 0 var(--sp-md);
 }
 
+/* The second label in the panel — needs air above it to read as the start of a
+   new block rather than a caption on the one before. */
+.links__label--section { margin-top: var(--sp-xl); }
+
 /* App shot + the two official store badges, stacked beside it. */
 .stores {
   display: flex;
@@ -748,6 +752,40 @@ body {
 
 .link__chevron { flex: none; color: var(--text-dim); font-size: 18px; line-height: 1; }
 
+/* --- socials ----------------------------------------------------------- */
+
+.socials {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: var(--sp-md);
+  margin: var(--sp-lg) 0 0;
+  padding: 0;
+}
+
+/* Same circular icon-button shell as the app's account button — hairline
+   border over a barely-there fill. */
+.social {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+  transition: color 200ms ease, background 200ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.social:hover,
+.social:focus-visible {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.social svg { display: block; }
+
 /* --- footer ----------------------------------------------------------- */
 
 .footer {
@@ -761,6 +799,63 @@ body {
 
 .footer a { color: var(--text-muted); text-decoration: none; }
 .footer a:hover { text-decoration: underline; }
+
+/* --- phones: the hero turns sideways -----------------------------------
+   A centred stack of title, ring and pills is precisely the app's Start screen,
+   which makes the page read as a copy of the app rather than as its doorway. On
+   a phone the ring therefore moves to the left with the track name and the three
+   lengths stacked beside it, which also buys back vertical space. From 640px the
+   original vertical arrangement returns unchanged. */
+
+@media (max-width: 639px) {
+  :root {
+    /* Smaller than the centred layout's ring: the width it gives up goes to the
+       column beside it, which needs enough room for "Three minutes meditation"
+       to stay on one line. Below that, the non-breaking space glue starts
+       pushing the first word onto a line of its own. */
+    --play-size: clamp(112px, 15vh, 132px);
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      'label  label'
+      'switch switch'
+      'now    now'
+      'play   pills';
+    column-gap: var(--sp-md);
+    row-gap: var(--sp-sm);
+    align-items: center;
+    padding: var(--sp-lg) 0 var(--sp-md);
+  }
+
+  /* Dissolve the wrapper's box so the label, switch and pills become grid items
+     of .hero and can be placed independently. At >= 640px it goes back to being
+     a plain block and the markup needs no duplication. */
+  .picker { display: contents; }
+
+  .picker__label { grid-area: label; }
+  .attention { grid-area: switch; justify-self: center; margin-bottom: var(--sp-xs); }
+  .play { grid-area: play; }
+
+  /* Spans both columns rather than sitting in the narrow one beside the ring:
+     "Three minutes meditation" needs about 210px on one line, which no column
+     narrow enough to leave room for the ring can give it. Full width keeps every
+     title on a single line at the app's own size, and costs no height — the row
+     below is taller than the ring either way. It also reads as a heading over
+     both the ring and the choices, which is what it is. */
+  .now {
+    grid-area: now;
+    min-height: 0;
+  }
+
+  .pills {
+    grid-area: pills;
+    flex-direction: column;
+    align-self: start;
+  }
+}
 
 /* --- wider viewports --------------------------------------------------
    Tablets and small laptops get a roomier single column; from 980px the page
@@ -816,12 +911,6 @@ body {
   }
 
   .links::before { display: none; }
-
-  /* The panel has to clear a 1280×800 laptop without the page scrolling, and
-     the app shot is the tallest thing in it — so it goes back to the narrow
-     width here and the rows give up a few pixels of their padding. */
-  .stores__phone { width: 132px; }
-  .link { padding: 13px var(--sp-sm); }
 
   .logo { margin-top: 0; }
 }

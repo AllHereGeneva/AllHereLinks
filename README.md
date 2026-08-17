@@ -51,10 +51,23 @@ shared package.
 
 ## Layout
 
-One centred column on phones. From 640px the column widens; from 980px the page
-becomes a two-column grid — brand and hero on the left, the links panel on the
-right — sized so it clears a 1280×800 laptop without the page scrolling.
+**Phones (< 640px)** — the hero turns sideways: the ring on the left, the three
+lengths stacked beside it, the track name spanning both above them. A centred
+stack of title, ring and pills is precisely the app's Start screen, which makes
+the page read as a copy of the app rather than as its doorway; turning it also
+buys back vertical space. `.picker` becomes `display: contents` here so the
+label, switch and pills can be placed as grid items of `.hero` without
+duplicating any markup.
 
+The track name spans both columns rather than sitting beside the ring because
+"Three minutes meditation" needs about 210px on one line, which no column narrow
+enough to leave room for the ring can give it — and below that width the
+non-breaking-space glue starts pushing the first word onto a line of its own.
+
+**640px and up** — the original vertical arrangement returns, in a wider column.
+
+**980px and up** — two-column grid: brand and hero on the left, the links panel
+on the right, sized so it clears a 1280×800 laptop without the page scrolling.
 Both grid rows are `auto`, never `1fr`: a fractional row swallows the free space
 and leaves `align-content: center` nothing to distribute, which pins the brand to
 the top of the window instead of centring the stack.
@@ -67,6 +80,17 @@ the top of the window instead of centring the stack.
 is a `<li>` with an inline SVG icon, a title, a sub-label and a chevron. The first
 row carries `link--featured` (the 4 px accent rail) and a `link__thumb` preview;
 keep both on one row only, or the emphasis stops meaning anything.
+
+Socials are **not** rows: they're bare icons on one line (`<ul class="socials">`),
+because three full rows for three handles was most of the list's height and none
+of its substance. The circular shell is the app's own icon button; `aria-label`
+carries the name for screen readers and `title` for pointer users, since there's
+no visible text.
+
+The panel carries two labels: the app block reuses allhere.org's own heading above
+its store badges ("Download the Silent Mind App"), and "Get to know us" labels the
+link list. Wording an existing call to action twice over is worse than reusing it,
+so take app copy from allhere.org or the Lounge site rather than inventing it here.
 
 **The meditations** — everything lives in the pills' data attributes, in two
 `.pills` groups (one per attention). No JS change is needed to add or repoint one.
