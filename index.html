@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>All Here — Start here</title>
+<meta name="description" content="A one-minute guided meditation, the world map of meditators, and everything about All Here.">
+<meta name="theme-color" content="#00102E">
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+
+<!-- Absolute URLs: link previews are fetched by crawlers that don't resolve
+     relative paths. Update both when the page moves to allhere.org. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="All Here — Start here">
+<meta property="og:description" content="A one-minute guided meditation, the world map of meditators, and everything about All Here.">
+<meta property="og:url" content="https://allheregeneva.github.io/AllHereLinks/">
+<meta property="og:image" content="https://allheregeneva.github.io/AllHereLinks/assets/img/allhere-logo.png">
+<meta name="twitter:card" content="summary">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/links.css">
+</head>
+<body>
+
+<!-- Animated atmosphere — the app's SPACE shader. Falls back to the body
+     gradient if WebGL is unavailable (see assets/shader.js). -->
+<canvas id="atmosphere" aria-hidden="true"></canvas>
+
+<main class="page">
+
+  <img class="logo" src="assets/img/allhere-logo.png" alt="All Here">
+
+  <h1 class="title">Your journey to the Silent Mind</h1>
+
+  <section class="hero">
+    <!-- What the play button will play. Kept in sync with the pills below. -->
+    <div class="now">
+      <p class="now__title" id="now-title">One minute meditation</p>
+      <p class="now__meta">
+        <!-- Headphones — the app's KindIcon for an audio track. -->
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 14v-2a8 8 0 0 1 16 0v2"></path>
+          <path d="M4 14h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"></path>
+          <path d="M20 14h-2a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1z"></path>
+        </svg>
+        <span id="now-duration">1 min</span>
+      </p>
+    </div>
+
+    <button class="play" id="play" type="button" aria-label="Play the one minute meditation">
+      <!-- Halo: accent-tinted, fully transparent at the centre so the ring
+           outlines it crisply. -->
+      <span class="play__layer play__glow">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <defs>
+            <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"   stop-color="#3D6BBA" stop-opacity="0"></stop>
+              <stop offset="55%"  stop-color="#3D6BBA" stop-opacity="0.06"></stop>
+              <stop offset="92%"  stop-color="#3D6BBA" stop-opacity="0.30"></stop>
+              <stop offset="100%" stop-color="#3D6BBA" stop-opacity="0.45"></stop>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="44.65" fill="url(#halo)"></circle>
+        </svg>
+      </span>
+
+      <!-- Expanding ghost ring — the emanation that says "tap me". -->
+      <span class="play__layer play__ripple">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="46" fill="none" stroke="#3D6BBA" stroke-width="2.16"></circle>
+        </svg>
+      </span>
+
+      <!-- The ring. -->
+      <span class="play__layer play__ring">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="46" fill="none" stroke="#3D6BBA" stroke-width="2.52" opacity="0.85"></circle>
+        </svg>
+      </span>
+
+      <!-- Elapsed arc, drawn over the ring while playing. -->
+      <span class="play__layer play__arc">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle class="play__arc-fill" id="arc" cx="50" cy="50" r="46" fill="none"
+                  stroke="#3D6BBA" stroke-width="2.52" stroke-linecap="round"
+                  transform="rotate(-90 50 50)"></circle>
+        </svg>
+      </span>
+
+      <span class="play__sway">
+        <span class="play__glyph">
+          <span class="play__triangle">&#9654;</span>
+          <span class="play__pause"><span></span><span></span></span>
+        </span>
+      </span>
+    </button>
+
+    <div class="picker">
+      <p class="picker__label">Instant meditation</p>
+      <div class="pills" role="group" aria-label="Choose a meditation length">
+        <button class="pill" type="button" id="pill-1min"
+                data-src="assets/audio/inner_1min.mp3"
+                data-title="One minute meditation"
+                data-duration="1 min"
+                aria-pressed="true">
+          <span class="pill__duration">1 min</span>
+          <span class="pill__sub">First practice</span>
+        </button>
+        <button class="pill" type="button" id="pill-3min"
+                data-src="assets/audio/inner_3min.mp3"
+                data-title="Three minutes meditation"
+                data-duration="3 min"
+                aria-pressed="false">
+          <span class="pill__duration">3 min</span>
+          <span class="pill__sub">Go deeper</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="links">
+    <p class="links__label">Get to know us</p>
+
+    <div class="stores">
+      <a href="https://apps.apple.com/app/id6746474674" target="_blank" rel="noopener">
+        <img src="assets/img/app_store.png" alt="Download All Here on the App Store">
+      </a>
+      <a href="https://play.google.com/store/apps/details?id=com.allhere.allhere" target="_blank" rel="noopener">
+        <img src="assets/img/google_play.png" alt="Get All Here on Google Play">
+      </a>
+    </div>
+
+    <ul class="link-list">
+      <li>
+        <a class="link link--featured" href="https://allheregeneva.github.io/AllHereLeaderboard/" target="_blank" rel="noopener">
+          <span class="link__icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M3 12h18"></path>
+              <path d="M12 3c2.5 2.4 3.8 5.5 3.8 9S14.5 18.6 12 21c-2.5-2.4-3.8-5.5-3.8-9S9.5 5.4 12 3z"></path>
+            </svg>
+          </span>
+          <span class="link__text">
+            <span class="link__title">World map of meditators</span>
+            <span class="link__sub">The live Concentration &amp; Mindfulness Index, worldwide</span>
+          </span>
+          <span class="link__chevron" aria-hidden="true">&rsaquo;</span>
+        </a>
+      </li>
+      <li>
+        <a class="link" href="https://allhere.org/" target="_blank" rel="noopener">
+          <span class="link__icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+              <path d="M3 9h18"></path>
+              <path d="M7 6.5h.01M10 6.5h.01"></path>
+            </svg>
+          </span>
+          <span class="link__text">
+            <span class="link__title">allhere.org</span>
+            <span class="link__sub">Who we are, the science, the technology</span>
+          </span>
+          <span class="link__chevron" aria-hidden="true">&rsaquo;</span>
+        </a>
+      </li>
+      <li>
+        <a class="link" href="https://www.wml.org/" target="_blank" rel="noopener">
+          <span class="link__icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+              <path d="M7 4h10v5a5 5 0 0 1-10 0z"></path>
+              <path d="M7 6H5a2 2 0 0 0 2 3M17 6h2a2 2 0 0 1-2 3"></path>
+              <path d="M12 14v3M9 20h6"></path>
+            </svg>
+          </span>
+          <span class="link__text">
+            <span class="link__title">World Meditation League</span>
+            <span class="link__sub">wml.org</span>
+          </span>
+          <span class="link__chevron" aria-hidden="true">&rsaquo;</span>
+        </a>
+      </li>
+      <li>
+        <a class="link" href="https://www.instagram.com/allhere_organization" target="_blank" rel="noopener">
+          <span class="link__icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="5"></rect>
+              <circle cx="12" cy="12" r="4"></circle>
+              <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"></circle>
+            </svg>
+          </span>
+          <span class="link__text">
+            <span class="link__title">Instagram</span>
+            <span class="link__sub">@allhere_organization</span>
+          </span>
+          <span class="link__chevron" aria-hidden="true">&rsaquo;</span>
+        </a>
+      </li>
+      <li>
+        <a class="link" href="https://www.linkedin.com/company/all-here-organization" target="_blank" rel="noopener">
+          <span class="link__icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9.5 9h3.8v1.7h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.5 4.78 5.76V21h-4v-5.6c0-1.34-.03-3.06-1.9-3.06-1.9 0-2.2 1.45-2.2 2.96V21h-4z"></path>
+            </svg>
+          </span>
+          <span class="link__text">
+            <span class="link__title">LinkedIn</span>
+            <span class="link__sub">All Here Organization</span>
+          </span>
+          <span class="link__chevron" aria-hidden="true">&rsaquo;</span>
+        </a>
+      </li>
+      <li>
+        <a class="link" href="https://www.youtube.com/@AllHereMeditation" target="_blank" rel="noopener">
+          <span class="link__icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M21.6 7.2c-.23-1.2-.94-2.05-2.13-2.26C17.6 4.6 12 4.6 12 4.6s-5.6 0-7.47.34C3.34 5.15 2.63 6 2.4 7.2 2.1 8.8 2.1 12 2.1 12s0 3.2.3 4.8c.23 1.2.94 2.05 2.13 2.26C6.4 19.4 12 19.4 12 19.4s5.6 0 7.47-.34c1.19-.21 1.9-1.06 2.13-2.26.3-1.6.3-4.8.3-4.8s0-3.2-.3-4.8zM10 15.2V8.8l5.4 3.2z"></path>
+            </svg>
+          </span>
+          <span class="link__text">
+            <span class="link__title">YouTube</span>
+            <span class="link__sub">@AllHereMeditation</span>
+          </span>
+          <span class="link__chevron" aria-hidden="true">&rsaquo;</span>
+        </a>
+      </li>
+    </ul>
+
+    <p class="footer">
+      All Here &middot; Geneva &nbsp;&middot;&nbsp; <a href="https://allhere.org/" target="_blank" rel="noopener">allhere.org</a>
+    </p>
+  </section>
+
+</main>
+
+<!-- Audio element is created and driven from links.js (preload none, so a QR
+     scan doesn't pull megabytes before anyone presses play). -->
+<script src="assets/links.js"></script>
+<script src="assets/shader.js"></script>
+</body>
+</html>
