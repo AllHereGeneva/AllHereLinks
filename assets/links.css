@@ -878,7 +878,6 @@ body {
     color: var(--text-dim);
     text-decoration: none;
     -webkit-tap-highlight-color: transparent;
-    animation: cue-bob 2200ms var(--ease-sine) infinite alternate;
   }
 
   .scroll-cue__label {
@@ -889,14 +888,33 @@ body {
     white-space: nowrap;
   }
 
-  .scroll-cue svg { display: block; }
+  /* Only the chevron moves. Bobbing the label with it made the whole cue drift,
+     which reads as the page settling rather than as an invitation to scroll. */
+  .scroll-cue svg {
+    display: block;
+    animation: cue-bob 2200ms var(--ease-sine) infinite alternate;
+  }
 
   /* Screen two has no cue under it. */
   #practice { padding-bottom: var(--sp-lg); }
 
   .links { margin-top: var(--sp-lg); }
 
-  .app { margin-top: var(--sp-lg); }
+  /* Clear air between the practice and the download ask, so they read as two
+     separate offers rather than one continuous block. */
+  .app { margin-top: var(--sp-xxl); }
+
+  /* No app shot on a phone: the heading and the two official badges already say
+     what this is, and the screenshot was the tallest thing on the screen. The
+     width it frees lets the badges sit side by side. */
+  .stores__phone { display: none; }
+
+  .stores__badges {
+    flex-direction: row;
+    gap: var(--sp-sm);
+  }
+
+  .stores__badges img { height: 46px; }
 
   .hero {
     display: grid;
@@ -1025,6 +1043,6 @@ body {
   .attention__rule { transition: none; }
   /* The cue stays visible, just still — and the jump to the second screen
      becomes instant rather than a long animated scroll. */
-  .scroll-cue { animation: none; opacity: 0.85; }
+  .scroll-cue svg { animation: none; opacity: 0.85; }
   html { scroll-behavior: auto; }
 }
