@@ -154,6 +154,11 @@
 <!-- Second screen: the practice itself, then the app it lives in. -->
 <div class="screen" id="practice">
 
+  <!-- The practice and the app that carries it. `display: contents` on phones, so
+       the wrapper costs nothing there; from 980px it becomes the single left-hand
+       block, which is what merges the two on desktop. -->
+  <div class="practice-block">
+
   <section class="hero">
     <!-- The section's heading, at the same tier as the other two so the three
          read as siblings — and so nothing inside a section outweighs the heading
@@ -376,19 +381,22 @@
     </div>
   </section>
 
+  </div>
+
   <!-- No allhere.org link here: it already has its own row on the first screen. -->
   <p class="footer">All Here &middot; Geneva</p>
 
 </div>
 
-<!-- Third screen: booking. Last in the DOM, and CSS `order` lifts it to the front
-     when a venue is known — so the markup has one order and the layout two. See
-     assets/booking.js for how a venue is resolved. -->
+<!-- Third screen: what's coming up at the venues. Last on a phone, and the
+     right-hand column's lower panel on desktop. -->
 <div class="screen screen--booking">
 
   <section class="booking" id="booking">
     <h2 class="section-title">Book a session</h2>
-    <p class="booking__where" id="booking-where" hidden></p>
+    <!-- The cities with something coming up. Filled from the catalogue: the list
+         spans venues, so naming them beats one venue's street address. -->
+    <p class="booking__cities" id="booking-cities" hidden></p>
 
     <div class="booking__body" id="booking-body">
       <!-- Static fallback: what the panel says if the script never runs or the
@@ -400,14 +408,6 @@
     </div>
   </section>
 
-  <!-- Only shown when this screen is the first one (body.has-venue). -->
-  <a class="scroll-cue scroll-cue--booking" href="#who">
-    <span class="scroll-cue__label">Get to know us</span>
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M6 9l6 6 6-6"></path>
-    </svg>
-  </a>
 
 </div>
 

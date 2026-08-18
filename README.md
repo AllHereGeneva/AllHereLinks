@@ -55,27 +55,19 @@ The order is the same at every size: **who we are, then the practice, then the
 app**. Someone scanning the code should reach our own pages first; the meditation
 is what keeps them, not what greets them.
 
-**Phones (< 640px)** — full-height screens joined by a scroll cue. Two normally,
-three when a venue is known (see [the booking panel](#the-booking-panel)):
+**Phones (< 640px)** — three full-height screens:
 
-| | Normally | Near a venue |
-| --- | --- | --- |
-| Screen 1 | wordmark, links, socials | **booking** |
-| Screen 2 | practice, app download, footer | wordmark, links, socials |
-| Screen 3 | booking (last) | practice, app download, footer |
+| | |
+| --- | --- |
+| Screen 1 | wordmark, page title, the link list, the socials |
+| Screen 2 | the practice, the app download, the footer |
+| Screen 3 | what's coming up at the venues |
 
 Each screen is a `.screen` wrapper at `min-height: 100svh` with
 `scroll-snap-align: start`. Snapping is `proximity`, not `mandatory`: a screen can
 grow past a short phone's viewport, and mandatory snapping there fights anyone
-trying to reach its lower half. The cues are plain `<a href>`s, so the jump is the
-browser's own smooth scroll — no script, and they work with JS off. Only the cue on
-whichever screen is first is ever visible.
-
-The reorder is CSS `order`, never a DOM move. One consequence worth knowing: when
-the class lands *after* first paint (the geolocation path), the browser's scroll
-anchoring keeps whatever the reader was looking at in place rather than yanking the
-page — which is the behaviour you want, but it means `scrollY` can change on its
-own at that moment.
+trying to reach its lower half. The cue is a plain `<a href>`, so the jump is the
+browser's own smooth scroll — no script, and it works with JS off.
 
 Inside screen 2 the hero turns sideways: the ring on the left, the three lengths
 stacked beside it, the track name spanning both above them. A centred stack of
@@ -88,13 +80,21 @@ the first word onto a line of its own.
 
 **640px and up** — one wider column, everything stacked in the same order.
 
-**980px and up** — two-column grid: brand and hero on the left; the links panel,
-the app panel and the footer on the right, plus the booking panel above them when a
-venue is known. `.screen` becomes `display: contents` so its children place as grid
-items directly.
+**980px and up** — two columns. Left: the brand, then the practice and the app
+download **merged into one block** (`.practice-block`) — try a meditation, and right
+there is where it lives. Right: the links panel, what's coming up, and the footer.
 
-Sized to clear a 1280×800 laptop without the page scrolling. Two traps behind
-that:
+Both wrappers exist for one layout each and dissolve in the other with
+`display: contents`: `.screen` groups a phone screen, `.practice-block` groups the
+desktop left-hand column. That's what lets one set of markup carry both.
+
+Pairing the tall links panel with the short brand row — rather than with the
+practice — is what keeps the whole thing near a 1280×800 laptop: grid rows are shared
+between columns, so a short item beside a tall one wastes exactly that difference. It
+still scrolls about 20px at exactly that size, which is the price of giving "Instant
+meditation" room to breathe under the page title instead of gluing the two together.
+
+Two traps behind the vertical centring:
 
 - Grid rows are all `auto`, never `1fr`. A fractional row swallows the free space
   and leaves `align-content: center` nothing to distribute, which pins the brand
@@ -200,83 +200,72 @@ t.convert('P', palette=Image.ADAPTIVE, colors=128).save('assets/img/worldmap.png
 
 ## The booking panel
 
-Shows what's bookable near the visitor, and **stops at a link** into
-`allherelounge.com/booking/`. It deliberately does not book: reserving needs a
-signed-in account (email OTP, Google, Apple) and credits — the API answers
+Lists the next three sessions across every venue, names the cities they're in, and
+hands off to `allherelounge.com/booking/` for the rest. It doesn't book: reserving
+needs a signed-in account (email OTP, Google, Apple) and credits — the API answers
 `402 no_credit` when they run out — and all of that already exists in the Lounge
 site's 1,600-line booking page. A second implementation here would mean every
 future booking change had to be made twice, in a place where an auth bug would
 touch real accounts.
 
 What it does use is the **public** part: `GET https://api.allherelounge.com/booking`
-needs no auth and sends `access-control-allow-origin: *`, so the page reads the
-real catalogue — sessions, prices, capacity — client-side.
+needs no auth and sends `access-control-allow-origin: *`, so the page reads the real
+catalogue — sessions, prices, capacity — client-side.
 
-### How a venue is resolved
+### Why there's no geolocation
 
-1. **`?venue=<id>` on the URL.** What the QR code printed *at* a venue carries.
-   Instant, exact, asks the visitor for nothing. Try
-   [`/?venue=geneva`](https://allheregeneva.github.io/AllHereLinks/?venue=geneva).
-2. **An explicit tap on "Use my location"** — for codes handed out elsewhere.
-   Never on load: a permission prompt is a poor greeting, and the answer arrives
-   too late to place the panel without the page jumping under the reader.
+There was, briefly: `?venue=<id>` on the URL plus an opt-in "Use my location" button,
+and the panel moved to the front of the page when it knew where you were. It was
+removed because it only ever showed itself to visitors who arrived through a
+venue-specific code or explicitly asked to be located — so **someone standing in
+Geneva, on the plain link, saw nothing at all**, which is exactly the report that
+killed it. Listing what's coming up wherever it is, with the cities named, is
+simpler and always says something true.
 
-With a venue the panel moves to the **front** and lists that venue's next three
-sessions. Without one it stays **last** and lists the venues that have sessions at
-all. The move is CSS `order`, so the markup has one order and the layout two.
-
-On desktop the panel is shown **only** when a venue is known — that's the whole
-point of making it conditional: nothing is added for the people it can't serve, so
-the layout everyone else sees is untouched. In that state the page does scroll a
-little; four panels are more than a 1280×800 laptop holds, and someone standing in
-the lounge is better served by seeing the slots.
+If venue-awareness comes back, the lesson is that it can't be the only way the panel
+becomes useful.
 
 ### Venues
 
 `VENUES` in `assets/booking.js` — one entry per venue, and the ids must match what
-the API tags activities with (`geneva`, `hyderabad`, `losangeles`, `tokyo` today).
+the API tags activities with (`geneva`, `hyderabad`, `losangeles`, `tokyo` today). A
+venue only needs a display name.
 
-Coordinates are **city-level on purpose**: the question is "is this visitor in a
-city where we have a venue", not "are they in the doorway", so the radius is
-generous and a rooftop-exact latitude would buy nothing.
+`currency` is set **only where it's actually known** (Geneva: CHF). The API returns a
+bare number for `price` and no currency — per-venue currency is still a config item
+in the multi-venue plan — and a price against the wrong symbol is worse than no
+price. Venues without a currency simply show no price.
 
-`currency` is set **only where it's actually known** (Geneva: CHF). The API returns
-a bare number for `price` and no currency — per-venue currency is still a config
-item in the multi-venue plan — and a price against the wrong symbol is worse than
-no price. Venues without a currency simply show no price.
-
-A venue with no upcoming, non-full sessions is skipped entirely, in the list and in
-the proximity match: offering "book here" where nothing is bookable is worse than
-saying nothing.
+The city goes on **every row**, not just in the header: the list mixes venues, so a
+time without a place doesn't tell a reader whether it's theirs. Full sessions are
+dropped, and a venue with nothing upcoming never appears.
 
 ### Two traps worth keeping in mind
 
 - **Slot times are venue-local and carry no zone** (`2026-08-19T17:00`). The Lounge
   booking page says as much. Handing that to `new Date()` makes the browser read it
   as the *visitor's* local time and reformat it into their zone — 17:00 in Geneva
-  would show as 08:00 to someone in Los Angeles. `parseSlot()` reads the parts by
+  would show as 08:00 to a reader in Los Angeles. `parseSlot()` reads the parts by
   hand and formats through UTC so the digits stay exactly as published.
-- **The catalogue is 24 KB and the API does not compress it** — bigger than this
-  whole page. So it is never fetched on load unless the panel is up front: with a
-  venue it fetches immediately, otherwise an IntersectionObserver waits until the
-  panel is nearly in view. On desktop without a venue the panel is `display: none`,
-  never intersects, and no request is made at all.
+- **The catalogue is 24 KB and the API doesn't compress it** — bigger than this whole
+  page. So it's only fetched once the panel is within a screen of the viewport:
+  immediately on desktop, and on a phone only for visitors who reach the last screen.
+  That check is a plain `getBoundingClientRect` test rather than an
+  IntersectionObserver, which only reports while the page is actually being
+  rendered — a page opened in a background tab would have sat on its fallback until
+  someone looked at it.
+
+If the fetch fails or the script never runs, the static markup in `index.html`
+stands: one line about the venues and a link to the calendar. That fallback has to
+stay useful on its own, which is why it doesn't say "loading".
 
 ---
 
 ## The QR codes
 
-Two sets, both at error-correction level Q so they still scan with a logo over the
-centre or with some print wear, and both in SVG (vector, for print) and PNG:
-
-| File | Encodes | Use |
-| --- | --- | --- |
-| `qr/allhere-qr.*` | the bare page URL | anywhere — flyers, cards, slides |
-| `qr/allhere-qr-geneva.*` | `?venue=geneva` | printed **at** the Geneva lounge |
-
-The venue code is what makes the booking panel lead instead of trailing, with no
-permission prompt and no guessing. Add one per venue as venues open — same recipe,
-swapping the id.
+`qr/allhere-qr.svg` (vector, for print) and `qr/allhere-qr.png` both encode
+`https://allheregeneva.github.io/AllHereLinks/` at error-correction level Q, so they
+still scan with a logo covering the centre or with some print wear.
 
 **Regenerate them whenever the URL changes** — see the migration note below:
 
@@ -325,9 +314,15 @@ in two places that haven't shipped or aren't public:
 ## Local preview
 
 ```bash
-python3 -m http.server 8777 --directory .
+python3 ../.claude/serve-nocache.py 8778 AllHereLinks
 ```
 
-Then open http://localhost:8777. A server is needed because the audio is loaded
+(That's what `.claude/launch.json` runs. It's `http.server` plus a
+`Cache-Control: no-store` header — the plain module sends `Last-Modified`, and the
+browser then happily reuses a stale stylesheet after an edit, which quietly made
+several rounds of local testing measure the *previous* CSS. Nothing about it ships;
+GitHub Pages does its own, correct, ETag caching.)
+
+Then open http://localhost:8778. A server is needed because the audio is loaded
 over HTTP; opening `index.html` from `file://` works for layout but the shader and
 audio may be blocked.

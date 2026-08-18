@@ -125,9 +125,11 @@ body {
   min-height: 100svh;
 }
 
-/* Wrappers for the phone layout's two screens. Dissolved from 640px so their
-   children go back to being direct children of .page — see the media queries. */
+/* Wrappers that exist only for one layout each, dissolved in the other. `.screen`
+   groups a phone screen; `.practice-block` groups the desktop left-hand column.
+   `display: contents` is what lets one set of markup carry both. */
 .screen { display: contents; }
+.practice-block { display: contents; }
 
 /* Scroll cue between the two screens. Hidden by default; the phone media query
    turns it on. */
@@ -831,8 +833,8 @@ body {
   margin-top: var(--sp-xl);
 }
 
-/* Venue name and address, under the heading. */
-.booking__where {
+/* The cities with sessions coming up, under the heading. */
+.booking__cities {
   margin: calc(var(--sp-md) * -1) 0 var(--sp-md);
   text-align: center;
   font-size: 12px;
@@ -960,11 +962,6 @@ body {
 
 .booking__locate:disabled { color: var(--text-dim); cursor: default; text-decoration: none; }
 
-/* Only one cue is ever visible: the one on whichever screen comes first. Two
-   classes, because the phone media query re-declares `.scroll-cue { display: grid }`
-   at equal weight and later in the file — a single class would lose to it. */
-.scroll-cue.scroll-cue--booking { display: none; }
-
 /* --- phones: two screens ----------------------------------------------
    Screen one is the brand and the links — what should be reached first. Screen
    two is the practice and the app. A centred stack of title, ring and pills was
@@ -1050,13 +1047,6 @@ body {
   .app { margin-top: var(--sp-xxl); }
 
   .booking { margin-top: var(--sp-lg); }
-
-  /* Near a venue, booking leads. `order` moves it without touching the DOM, so
-     the markup keeps one order and the layout has two. */
-  body.has-venue .screen--booking { order: -1; }
-
-  /* The cue belongs to whichever screen is first. */
-  body.has-venue .scroll-cue.scroll-cue--booking { display: grid; }
 
   /* No app shot on a phone: the heading and the two official badges already say
      what this is, and the screenshot was the tallest thing on the screen. The
@@ -1144,13 +1134,17 @@ body {
     /* Rows are all `auto`, never `1fr`: a fractional row would swallow the free
        space and leave `align-content` nothing to distribute, which pins the
        brand to the top of the window instead of centring the stack. */
-    grid-template-rows: auto auto auto;
-    /* Links first in the right column too, so the priority reads the same on
-       every screen size: our own pages before the app download. */
+    grid-template-rows: auto auto auto auto;
+    /* Left: the brand, then the practice and the app download as one block. Right:
+       the links, what's coming up, and the footer. Pairing the tall links panel
+       with the short brand row (rather than with the practice) is what keeps the
+       whole thing inside a 1280x800 laptop — the rows are shared between columns,
+       so a short item next to a tall one wastes exactly that difference. */
     grid-template-areas:
-      'brand links'
-      'hero  app'
-      'hero  footer';
+      'brand    links'
+      'practice links'
+      'practice booking'
+      'practice footer';
     column-gap: clamp(40px, 5vw, 88px);
     /* `min-height` (not height) above means the grid grows when the content is
        taller than the viewport, so centring here can't push anything out of
@@ -1159,41 +1153,36 @@ body {
     padding: var(--sp-lg);
   }
 
-  /* Near a venue the booking panel joins the right column, above the rest.
-     Everyone else sees exactly the layout they saw before — which is the point of
-     making it conditional rather than always-on: nothing is added for people it
-     can't serve. The page may scroll a little in this state; four panels is more
-     than a 1280x800 laptop holds, and someone standing in the lounge is better
-     served by seeing the slots than by a no-scroll guarantee. */
-  body.has-venue .page {
-    grid-template-rows: auto auto auto auto;
-    grid-template-areas:
-      'brand booking'
-      'hero  links'
-      'hero  app'
-      'hero  footer';
-  }
+  .brand { grid-area: brand; align-self: center; }
 
-  /* Hidden unless a venue is known — see the note above. */
-  .booking { display: none; }
-  body.has-venue .booking {
+  /* The merge: one grid item holding the practice and the app download, so the two
+     read as a single offer — try a meditation, and here's where it lives. */
+  .practice-block {
     display: block;
-    grid-area: booking;
+    grid-area: practice;
     align-self: center;
-    margin-top: 0;
+    /* The brand row sits directly above with no gutter of its own, so without this
+       "Instant meditation" reads as a subtitle glued under "THE SILENT MIND". */
+    margin-top: var(--sp-lg);
   }
 
-  .brand  { grid-area: brand; align-self: center; }
-  .hero   { grid-area: hero; align-self: center; padding-top: 0; }
-  .app    { grid-area: app; align-self: center; margin-top: 0; }
-  .links  { grid-area: links; align-self: center; margin-top: 0; }
-  .footer { grid-area: footer; align-self: start; margin-top: var(--sp-md); }
+  .hero { padding-top: 0; }
+
+  /* Inside the block it's no longer a panel of its own — it shares the hero's bare
+     treatment over the atmosphere, which is what makes the two read as one, and a
+     step of separation is enough now that nothing else divides them. */
+  .app { margin-top: var(--sp-lg); }
+
+  .links   { grid-area: links; align-self: center; margin-top: 0; }
+  .booking { grid-area: booking; align-self: center; margin-top: var(--sp-md); }
+  /* A quiet single line — a full step above it was the last 8px between this
+     layout and a 1280x800 laptop. */
+  .footer  { grid-area: footer; align-self: start; margin-top: var(--sp-sm); }
 
   /* Floating glass panels replace the phone layout's scrim — the same grammar as
      the leaderboard's standings panel. */
-  .app,
   .links,
-  body.has-venue .booking {
+  .booking {
     padding: var(--sp-lg);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
