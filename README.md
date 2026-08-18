@@ -85,10 +85,9 @@ Both wrappers exist for one layout each and dissolve in the other with
 desktop left-hand column. That's what lets one set of markup carry both.
 
 Pairing the tall links panel with the short brand row — rather than with the
-practice — is what keeps the whole thing near a 1280×800 laptop: grid rows are shared
-between columns, so a short item beside a tall one wastes exactly that difference. It
-still scrolls about 20px at exactly that size, which is the price of giving "Try a
-meditation" room to breathe under the page title instead of gluing the two together.
+practice — is what keeps the whole thing inside a 1280×800 laptop: grid rows are
+shared between columns, so a short item beside a tall one wastes exactly that
+difference. It fits that viewport exactly, with no scrolling.
 
 Two traps behind the vertical centring:
 
@@ -133,10 +132,13 @@ problem, and it made the heading read as a stray label. What actually fixes it:
 - The download block gets a double step of air and a hairline above it (the same
   divider the app puts between list rows), so two equally-weighted headings still
   read as two groups. On phones they're separate stacked sections 48px apart, which
-  already reads as a break, so no rule there. They were overlines at first, which put an 11 px uppercase eyebrow
-above the 18 px track readout it was meant to govern — the hierarchy read
-upside-down. Sizes now descend strictly: 22 page title, 16 section heading, 14 the
-attention switch, 12 the readout. Keep new headings on that tier.
+  already reads as a break, so no rule there.
+
+The headings were overlines at first, which put an 11 px uppercase eyebrow above the
+18 px track readout it was meant to govern — the hierarchy read upside-down. Sizes
+now descend strictly: 26 page title, 18 section heading, 14 the attention switch, 12
+the readout on desktop (22 / 16 / 14 / 12 on phones). Keep new headings on that
+tier.
 
 The app heading reuses allhere.org's own wording above its store badges. Wording an
 existing call to action twice over is worse than reusing it, so take app copy from
