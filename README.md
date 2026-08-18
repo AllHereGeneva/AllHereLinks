@@ -26,10 +26,6 @@ and from where in `AllHereApp`:
 | The six `assets/audio/*.mp3` sets | `assets/audio/Inner/` + `assets/audio/Outer/` (re-encoded, see below) |
 | `assets/img/allhere-logo.png` | `assets/images/allhere-logo.png` |
 
-`assets/img/app-phone.jpg` comes from the Lounge site instead
-(`AllHereLounge/site/assets/images/app-phone.jpg`), which puts it beside its own
-download links; it happens to show the very screen this page ports.
-
 If any of those change upstream, they have to be copied over by hand — there's no
 shared package.
 
@@ -131,6 +127,13 @@ The app heading reuses allhere.org's own wording above its store badges. Wording
 existing call to action twice over is worse than reusing it, so take app copy from
 allhere.org or the Lounge site rather than inventing it here.
 
+The download block is the heading plus the two official badges side by side, and
+nothing else. It carried a shot of the app in a hand (the Lounge site's
+`app-phone.jpg`) to show what was being downloaded; it was the tallest thing in the
+block on both layouts and made the ask busier than "here are the two buttons". The
+asset is gone from this repo — it's still in `AllHereLounge/site/assets/images/` if
+it's ever wanted back.
+
 **The meditations** — everything lives in the pills' data attributes, in two
 `.pills` groups (one per attention). No JS change is needed to add or repoint one.
 
@@ -230,6 +233,14 @@ becomes useful.
 `VENUES` in `assets/booking.js` — one entry per venue, and the ids must match what
 the API tags activities with (`geneva`, `hyderabad`, `losangeles`, `tokyo` today). A
 venue only needs a display name.
+
+The line under the heading names **every** venue, in the order they're declared —
+which is therefore the editorial order, not the API's. Deliberately not filtered to
+venues with slots on the calendar: it says where All Here operates, which stays true
+whether or not Tokyo happens to have an opening this week. It needs no data, so it
+renders the moment the script does. (Adding a venue means the `VENUES` entry, and the
+prose in the static fallback paragraph in `index.html`, which names the cities for
+the no-JS case.)
 
 `currency` is set **only where it's actually known** (Geneva: CHF). The API returns a
 bare number for `price` and no currency — per-venue currency is still a config item

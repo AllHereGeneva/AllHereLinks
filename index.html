@@ -358,26 +358,16 @@
     <h2 class="section-title">Download the Silent Mind&nbsp;App</h2>
 
     <div class="stores">
-      <!-- The app's own Start screen in a hand — the same asset the Lounge site
-           puts beside its download links (AllHereLounge/site/silent-mind.html),
-           so it's immediately clear what's being downloaded. It also happens to
-           show the very screen this page is a port of.
-           width/height carry the asset's aspect ratio so the browser reserves
-           the right box before the image loads; the CSS width sizes it. -->
-      <img class="stores__phone" src="assets/img/app-phone.jpg" width="290" height="376"
-           alt="The All Here app open on its Start screen">
-      <div class="stores__badges">
-        <!-- Store ids verified against the iTunes lookup API and the live Play
-             listing, and they match what allhere.org and the Lounge site link.
-             No country code on the Apple URL — Apple redirects the visitor to
-             their own storefront, whereas the sites both pin /ch/. -->
-        <a href="https://apps.apple.com/app/id6765625119" target="_blank" rel="noopener">
-          <img src="assets/img/app_store.png" alt="Download All Here on the App Store">
-        </a>
-        <a href="https://play.google.com/store/apps/details?id=org.allhere.silentmind" target="_blank" rel="noopener">
-          <img src="assets/img/google_play.png" alt="Get All Here on Google Play">
-        </a>
-      </div>
+      <!-- Store ids verified against the iTunes lookup API and the live Play
+           listing, and they match what allhere.org and the Lounge site link. No
+           country code on the Apple URL — Apple redirects the visitor to their own
+           storefront, whereas the sites both pin /ch/. -->
+      <a href="https://apps.apple.com/app/id6765625119" target="_blank" rel="noopener">
+        <img src="assets/img/app_store.png" alt="Download All Here on the App Store">
+      </a>
+      <a href="https://play.google.com/store/apps/details?id=org.allhere.silentmind" target="_blank" rel="noopener">
+        <img src="assets/img/google_play.png" alt="Get All Here on Google Play">
+      </a>
     </div>
   </section>
 
@@ -402,7 +392,8 @@
       <!-- Static fallback: what the panel says if the script never runs or the
            catalogue can't be reached. Replaced with real sessions otherwise, so
            this must stay useful on its own rather than saying "loading". -->
-      <p class="booking__note">Sessions run at our venues in Geneva and beyond.</p>
+      <p class="booking__note">Sessions run at our venues in Geneva, Hyderabad,
+           Los Angeles and Tokyo.</p>
       <a class="booking__cta" href="https://allherelounge.com/booking/"
          target="_blank" rel="noopener">See the calendar &rsaquo;</a>
     </div>

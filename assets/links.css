@@ -770,45 +770,26 @@ body {
   margin-top: var(--sp-xl);
 }
 
-/* App shot + the two official store badges, stacked beside it. */
+/* The two official store badges, side by side. There used to be a shot of the app
+   in a hand beside them; it was the tallest thing in the block and made the ask
+   busier than "here are the two buttons". */
 .stores {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: var(--sp-md);
-}
-
-.stores__phone {
-  display: block;
-  flex: none;
-  /* Wider than the phone alone would need, because the asset is the full
-     composition (hand, phone and the navy glow around them) rather than a crop —
-     at a narrower width the screen itself stops being readable. */
-  width: 132px;
-  height: auto;
-  border-radius: 10px;
-  /* The asset carries its own navy backdrop, so it would otherwise read as a
-     hard rectangle over the water; the rounded corners and soft shadow make it
-     read as a deliberately framed shot. */
-  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
-}
-
-.stores__badges {
-  display: flex;
-  flex-direction: column;
   gap: var(--sp-sm);
 }
 
-.stores__badges a {
+.stores a {
   display: block;
   transition: opacity 200ms ease;
 }
 
-.stores__badges a:hover { opacity: 0.78; }
+.stores a:hover { opacity: 0.78; }
 
-.stores__badges img {
+.stores img {
   display: block;
-  height: 42px;
+  height: 46px;
   width: auto;
 }
 
@@ -1048,18 +1029,6 @@ body {
 
   .booking { margin-top: var(--sp-lg); }
 
-  /* No app shot on a phone: the heading and the two official badges already say
-     what this is, and the screenshot was the tallest thing on the screen. The
-     width it frees lets the badges sit side by side. */
-  .stores__phone { display: none; }
-
-  .stores__badges {
-    flex-direction: row;
-    gap: var(--sp-sm);
-  }
-
-  .stores__badges img { height: 46px; }
-
   .hero {
     display: grid;
     /* Both columns sized to their content and the pair centred, rather than a
@@ -1111,8 +1080,6 @@ body {
   :root { --column-max: 580px; }
   .title { font-size: 26px; line-height: 32px; letter-spacing: 1.2px; }
   .section-title { font-size: 18px; line-height: 24px; }
-  .stores__badges img { height: 46px; }
-  .stores__phone { width: 148px; }
   .link__thumb { width: 104px; }
   .hero { padding-top: var(--sp-lg); }
 }

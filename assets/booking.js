@@ -118,18 +118,25 @@
     return a;
   }
 
+  /**
+   * Every venue we run, in the order declared above — which is therefore the
+   * editorial order, not the API's.
+   *
+   * Not filtered to venues with sessions on the calendar: this line says where All
+   * Here operates, which stays true whether or not Tokyo happens to have a slot
+   * open this week. The rows below are the ones that make an offer, and those are
+   * still only ever real, bookable sessions. It also means the line needs no data,
+   * so it goes up as soon as the script runs.
+   */
+  function renderCities() {
+    citiesEl.textContent = Object.keys(VENUES).map(function (id) {
+      return VENUES[id].name;
+    }).join('  ·  ');
+    citiesEl.hidden = false;
+  }
+
   function render(sessions) {
     if (!sessions || !sessions.length) return;   // keep the static fallback
-
-    // The cities with something coming up, in the order they appear — takes the
-    // place of a single venue's address now that the list spans venues.
-    var cities = [];
-    sessions.forEach(function (s) {
-      var n = VENUES[s.venue].name;
-      if (cities.indexOf(n) < 0) cities.push(n);
-    });
-    citiesEl.textContent = cities.join('  ·  ');
-    citiesEl.hidden = false;
 
     body.textContent = '';
     var list = el('ul', 'booking__slots');
@@ -185,6 +192,8 @@
    * check) would sit on the fallback until it was looked at. This runs the moment
    * the script does, wherever the panel happens to be.
    */
+  renderCities();
+
   var loaded = false;
 
   function nearViewport() {
