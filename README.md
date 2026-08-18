@@ -87,7 +87,7 @@ desktop left-hand column. That's what lets one set of markup carry both.
 Pairing the tall links panel with the short brand row — rather than with the
 practice — is what keeps the whole thing near a 1280×800 laptop: grid rows are shared
 between columns, so a short item beside a tall one wastes exactly that difference. It
-still scrolls about 20px at exactly that size, which is the price of giving "Instant
+still scrolls about 20px at exactly that size, which is the price of giving "Try a
 meditation" room to breathe under the page title instead of gluing the two together.
 
 Two traps behind the vertical centring:
@@ -116,14 +116,14 @@ of its substance. The circular shell is the app's own icon button; `aria-label`
 carries the name for screen readers and `title` for pointer users, since there's
 no visible text.
 
-**Section headings** — four of them ("Get to know us", "Instant meditation",
+**Section headings** — four of them ("Get to know us", "Try a meditation",
 "Download the Silent Mind App", "Book a session"), all on one `.section-title` tier:
 the app's h3, sentence case. No exceptions — they match in font, size and colour
 everywhere.
 
 The download heading briefly shrank to a muted label on desktop, because at the
 shared size it ran the full width of the column and looked oversized next to the
-short "Instant meditation". That was treating a **grouping** problem as a size
+short "Try a meditation". That was treating a **grouping** problem as a size
 problem, and it made the heading read as a stray label. What actually fixes it:
 
 - The practice heading had its tier's `margin-bottom` **and** the hero's flex `gap`,
