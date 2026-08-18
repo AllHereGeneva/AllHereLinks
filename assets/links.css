@@ -820,6 +820,151 @@ body {
   color: var(--text-dim);
 }
 
+/* --- booking ----------------------------------------------------------
+   Sessions bookable near the visitor. This panel stops at a link into
+   allherelounge.com/booking/: reserving needs a signed-in account and credits,
+   which already live there. See assets/booking.js for how a venue is resolved
+   and why the panel changes position rather than changing markup. */
+
+.booking {
+  width: 100%;
+  margin-top: var(--sp-xl);
+}
+
+/* Venue name and address, under the heading. */
+.booking__where {
+  margin: calc(var(--sp-md) * -1) 0 var(--sp-md);
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  color: var(--text-muted);
+}
+
+.booking__note {
+  margin: 0 0 var(--sp-md);
+  text-align: center;
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--text-muted);
+}
+
+/* Same borderless-with-hairlines grammar as the link list. */
+.booking__slots {
+  list-style: none;
+  margin: 0 0 var(--sp-md);
+  padding: 0;
+  border-top: 1px solid var(--separator);
+}
+
+.booking__slots li { border-bottom: 1px solid var(--separator); }
+
+.booking__slot {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  padding: var(--sp-sm) var(--sp-sm);
+  color: var(--text);
+  text-decoration: none;
+  transition: background 200ms ease;
+}
+
+.booking__slot:hover,
+.booking__slot:focus-visible { background: rgba(255, 255, 255, 0.05); }
+
+.booking__slot:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
+
+/* Fixed width so every row's session title starts on the same x. Wide enough for
+   "WED 19 AUG" on one line — at 62px the month wrapped under the weekday. */
+.booking__when {
+  flex: none;
+  width: 78px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.booking__day {
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+/* Venue-local time, printed exactly as published — never converted to the
+   visitor's zone (see parseSlot in booking.js). */
+.booking__time {
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 19px;
+  font-variant-numeric: tabular-nums;
+}
+
+.booking__what { flex: 1 1 auto; min-width: 0; }
+
+.booking__session {
+  display: block;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 19px;
+}
+
+.booking__meta {
+  display: block;
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.3px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.booking__chevron { flex: none; color: var(--text-dim); font-size: 18px; line-height: 1; }
+
+/* Primary action, in the pills' grammar so it reads as part of the same family
+   rather than as a web button dropped onto the page. */
+.booking__cta {
+  display: block;
+  width: fit-content;
+  margin: 0 auto;
+  padding: 10px 20px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-pill);
+  background: rgba(61, 107, 186, 0.18);
+  box-shadow: 0 0 18px rgba(61, 107, 186, 0.45);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.4px;
+  text-decoration: none;
+  transition: background 200ms ease, box-shadow 200ms ease;
+}
+
+.booking__cta:hover { background: rgba(61, 107, 186, 0.3); }
+
+/* Quieter than the CTA: it asks for a permission, so it shouldn't look like the
+   thing you came to press. */
+.booking__locate {
+  display: block;
+  margin: var(--sp-md) auto 0;
+  padding: var(--sp-sm);
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.booking__locate:disabled { color: var(--text-dim); cursor: default; text-decoration: none; }
+
+/* Only one cue is ever visible: the one on whichever screen comes first. Two
+   classes, because the phone media query re-declares `.scroll-cue { display: grid }`
+   at equal weight and later in the file — a single class would lose to it. */
+.scroll-cue.scroll-cue--booking { display: none; }
+
 /* --- phones: two screens ----------------------------------------------
    Screen one is the brand and the links — what should be reached first. Screen
    two is the practice and the app. A centred stack of title, ring and pills was
@@ -903,6 +1048,15 @@ body {
   /* Clear air between the practice and the download ask, so they read as two
      separate offers rather than one continuous block. */
   .app { margin-top: var(--sp-xxl); }
+
+  .booking { margin-top: var(--sp-lg); }
+
+  /* Near a venue, booking leads. `order` moves it without touching the DOM, so
+     the markup keeps one order and the layout has two. */
+  body.has-venue .screen--booking { order: -1; }
+
+  /* The cue belongs to whichever screen is first. */
+  body.has-venue .scroll-cue.scroll-cue--booking { display: grid; }
 
   /* No app shot on a phone: the heading and the two official badges already say
      what this is, and the screenshot was the tallest thing on the screen. The
@@ -1005,6 +1159,30 @@ body {
     padding: var(--sp-lg);
   }
 
+  /* Near a venue the booking panel joins the right column, above the rest.
+     Everyone else sees exactly the layout they saw before — which is the point of
+     making it conditional rather than always-on: nothing is added for people it
+     can't serve. The page may scroll a little in this state; four panels is more
+     than a 1280x800 laptop holds, and someone standing in the lounge is better
+     served by seeing the slots than by a no-scroll guarantee. */
+  body.has-venue .page {
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+      'brand booking'
+      'hero  links'
+      'hero  app'
+      'hero  footer';
+  }
+
+  /* Hidden unless a venue is known — see the note above. */
+  .booking { display: none; }
+  body.has-venue .booking {
+    display: block;
+    grid-area: booking;
+    align-self: center;
+    margin-top: 0;
+  }
+
   .brand  { grid-area: brand; align-self: center; }
   .hero   { grid-area: hero; align-self: center; padding-top: 0; }
   .app    { grid-area: app; align-self: center; margin-top: 0; }
@@ -1014,7 +1192,8 @@ body {
   /* Floating glass panels replace the phone layout's scrim — the same grammar as
      the leaderboard's standings panel. */
   .app,
-  .links {
+  .links,
+  body.has-venue .booking {
     padding: var(--sp-lg);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);

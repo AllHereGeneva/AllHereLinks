@@ -34,7 +34,7 @@
      should be reached first — who we are and where to find us. `.screen` is
      display:contents from 640px, so the wider layouts place its children as grid
      items and the wrappers cost nothing there. -->
-<div class="screen">
+<div class="screen" id="who">
 
   <header class="brand">
     <img class="logo" src="assets/img/allhere-logo.png" alt="All Here">
@@ -381,6 +381,36 @@
 
 </div>
 
+<!-- Third screen: booking. Last in the DOM, and CSS `order` lifts it to the front
+     when a venue is known — so the markup has one order and the layout two. See
+     assets/booking.js for how a venue is resolved. -->
+<div class="screen screen--booking">
+
+  <section class="booking" id="booking">
+    <h2 class="section-title">Book a session</h2>
+    <p class="booking__where" id="booking-where" hidden></p>
+
+    <div class="booking__body" id="booking-body">
+      <!-- Static fallback: what the panel says if the script never runs or the
+           catalogue can't be reached. Replaced with real sessions otherwise, so
+           this must stay useful on its own rather than saying "loading". -->
+      <p class="booking__note">Sessions run at our venues in Geneva and beyond.</p>
+      <a class="booking__cta" href="https://allherelounge.com/booking/"
+         target="_blank" rel="noopener">See the calendar &rsaquo;</a>
+    </div>
+  </section>
+
+  <!-- Only shown when this screen is the first one (body.has-venue). -->
+  <a class="scroll-cue scroll-cue--booking" href="#who">
+    <span class="scroll-cue__label">Get to know us</span>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M6 9l6 6 6-6"></path>
+    </svg>
+  </a>
+
+</div>
+
 </main>
 
 <!-- Attention explanations. Copy is verbatim from the app's
@@ -409,6 +439,7 @@
 </dialog>
 
 <script src="assets/links.js"></script>
+<script src="assets/booking.js"></script>
 <script src="assets/shader.js"></script>
 </body>
 </html>
