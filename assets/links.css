@@ -1140,6 +1140,19 @@ body {
      step of separation is enough now that nothing else divides them. */
   .app { margin-top: var(--sp-lg); }
 
+  /* Demoted to a label, because here it is nested inside the section that
+     "Instant meditation" heads rather than standing beside it. At the shared
+     18px it ran the full width of the column — as wide as the page title, and the
+     heaviest line in a block where everything else is 12 to 14px, which read as a
+     size mistake. Below 980px the two are separate stacked sections and it keeps
+     the full heading tier. */
+  .app .section-title {
+    font-size: 14px;
+    line-height: 19px;
+    color: var(--text-muted);
+    margin-bottom: var(--sp-sm);
+  }
+
   .links   { grid-area: links; align-self: center; margin-top: 0; }
   .booking { grid-area: booking; align-self: center; margin-top: var(--sp-md); }
   /* A quiet single line — a full step above it was the last 8px between this

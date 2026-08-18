@@ -116,9 +116,13 @@ of its substance. The circular shell is the app's own icon button; `aria-label`
 carries the name for screen readers and `title` for pointer users, since there's
 no visible text.
 
-**Section headings** — three of them ("Get to know us", "Instant meditation",
-"Download the Silent Mind App"), all on one `.section-title` tier: the app's h3,
-sentence case. They were overlines at first, which put an 11 px uppercase eyebrow
+**Section headings** — four of them ("Get to know us", "Instant meditation",
+"Download the Silent Mind App", "Book a session"), all on one `.section-title` tier:
+the app's h3, sentence case. One exception: from 980px the download heading is
+nested inside the section "Instant meditation" heads, so it drops to a 14px muted
+label. At the shared 18px it ran the full width of the column — as wide as the page
+title, and the heaviest line in a block where everything else is 12 to 14px, which
+read as a size mistake rather than a heading. They were overlines at first, which put an 11 px uppercase eyebrow
 above the 18 px track readout it was meant to govern — the hierarchy read
 upside-down. Sizes now descend strictly: 22 page title, 16 section heading, 14 the
 attention switch, 12 the readout. Keep new headings on that tier.
