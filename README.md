@@ -266,9 +266,17 @@ saying nothing.
 
 ## The QR codes
 
-`qr/allhere-qr.svg` (vector, for print) and `qr/allhere-qr.png` both encode
-`https://allheregeneva.github.io/AllHereLinks/` at error-correction level Q, so
-they still scan with a logo covering the centre or with some print wear.
+Two sets, both at error-correction level Q so they still scan with a logo over the
+centre or with some print wear, and both in SVG (vector, for print) and PNG:
+
+| File | Encodes | Use |
+| --- | --- | --- |
+| `qr/allhere-qr.*` | the bare page URL | anywhere — flyers, cards, slides |
+| `qr/allhere-qr-geneva.*` | `?venue=geneva` | printed **at** the Geneva lounge |
+
+The venue code is what makes the booking panel lead instead of trailing, with no
+permission prompt and no guessing. Add one per venue as venues open — same recipe,
+swapping the id.
 
 **Regenerate them whenever the URL changes** — see the migration note below:
 
