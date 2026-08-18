@@ -118,11 +118,22 @@ no visible text.
 
 **Section headings** — four of them ("Get to know us", "Instant meditation",
 "Download the Silent Mind App", "Book a session"), all on one `.section-title` tier:
-the app's h3, sentence case. One exception: from 980px the download heading is
-nested inside the section "Instant meditation" heads, so it drops to a 14px muted
-label. At the shared 18px it ran the full width of the column — as wide as the page
-title, and the heaviest line in a block where everything else is 12 to 14px, which
-read as a size mistake rather than a heading. They were overlines at first, which put an 11 px uppercase eyebrow
+the app's h3, sentence case. No exceptions — they match in font, size and colour
+everywhere.
+
+The download heading briefly shrank to a muted label on desktop, because at the
+shared size it ran the full width of the column and looked oversized next to the
+short "Instant meditation". That was treating a **grouping** problem as a size
+problem, and it made the heading read as a stray label. What actually fixes it:
+
+- The practice heading had its tier's `margin-bottom` **and** the hero's flex `gap`,
+  so it sat 32px from its own content while the content items sat 16px apart — it
+  floated above the group instead of belonging to it. `.hero .section-title` now
+  zeroes that margin and lets the gap do the spacing.
+- The download block gets a double step of air and a hairline above it (the same
+  divider the app puts between list rows), so two equally-weighted headings still
+  read as two groups. On phones they're separate stacked sections 48px apart, which
+  already reads as a break, so no rule there. They were overlines at first, which put an 11 px uppercase eyebrow
 above the 18 px track readout it was meant to govern — the hierarchy read
 upside-down. Sizes now descend strictly: 22 page title, 16 section heading, 14 the
 attention switch, 12 the readout. Keep new headings on that tier.
