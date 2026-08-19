@@ -60,10 +60,16 @@ is what keeps them, not what greets them.
 | Screen 3 | the booking options |
 
 Each screen is a `.screen` wrapper at `min-height: 100svh` with
-`scroll-snap-align: start`. Snapping is `proximity`, not `mandatory`: a screen can
-grow past a short phone's viewport, and mandatory snapping there fights anyone
-trying to reach its lower half. The cue is a plain `<a href>`, so the jump is the
-browser's own smooth scroll — no script, and it works with JS off.
+`scroll-snap-align: start`, and each but the last carries a cue to the next — "Try a
+meditation", then "Booking options". They name their destination for a reason: a bare
+chevron says "there is more" but not what, and without the second one nothing
+announced the booking screen at all.
+
+Snapping is `proximity`, not `mandatory`: a screen can grow past a short phone's
+viewport, and mandatory snapping there fights anyone trying to reach its lower half.
+The cues are plain `<a href>`s, so the jump is the browser's own smooth scroll — no
+script, and they work with JS off. Only the last screen gives back the padding the
+others reserve for their cue.
 
 Inside screen 2 the hero turns sideways: the ring on the left, the three lengths
 stacked beside it, the track name spanning both above them. A centred stack of

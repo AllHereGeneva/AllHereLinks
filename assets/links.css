@@ -8,8 +8,8 @@
  * from CircleButton so the ring breathes at exactly the same rhythm.
  *
  * Layout: on phones, three full-height screens — brand and links, then the practice
- * and the app, then the booking options — the first two joined by a scroll cue. From
- * 980px it's a two-column grid with everything on one screen.
+ * and the app, then the booking options — each joined to the next by a scroll cue.
+ * From 980px it's a two-column grid with everything on one screen.
  */
 
 :root {
@@ -131,7 +131,7 @@ body {
 .screen { display: contents; }
 .practice-block { display: contents; }
 
-/* Scroll cue between the two screens. Hidden by default; the phone media query
+/* Scroll cue from one screen to the next. Hidden by default; the phone media query
    turns it on. */
 .scroll-cue { display: none; }
 
@@ -993,8 +993,8 @@ body {
     animation: cue-bob 2200ms var(--ease-sine) infinite alternate;
   }
 
-  /* Screen two has no cue under it. */
-  #practice { padding-bottom: var(--sp-lg); }
+  /* Only the last screen has no cue under it, so only it can give that room back. */
+  #book { padding-bottom: var(--sp-lg); }
 
   .links { margin-top: var(--sp-lg); }
 

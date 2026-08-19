@@ -373,11 +373,22 @@
 
   </div>
 
+  <!-- On to the third screen. Same plain anchor as the first cue, and it names its
+       destination for the same reason: a bare chevron says "there is more" but not
+       what. Without it nothing announced the booking screen at all. -->
+  <a class="scroll-cue" href="#book">
+    <span class="scroll-cue__label">Booking options</span>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M6 9l6 6 6-6"></path>
+    </svg>
+  </a>
+
 </div>
 
 <!-- Third screen: what's coming up at the venues. Last on a phone, and the
      right-hand column's lower panel on desktop. -->
-<div class="screen screen--booking">
+<div class="screen screen--booking" id="book">
 
   <section class="booking" id="booking">
     <h2 class="section-title">Booking options</h2>
