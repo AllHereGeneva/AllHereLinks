@@ -78,16 +78,17 @@ the first word onto a line of its own.
 
 **980px and up** — two columns. Left: the brand, then the practice and the app
 download **merged into one block** (`.practice-block`) — try a meditation, and right
-there is where it lives. Right: the links panel, what's coming up, and the footer.
+there is where it lives. Right: the links panel, the booking options, and the footer.
 
 Both wrappers exist for one layout each and dissolve in the other with
 `display: contents`: `.screen` groups a phone screen, `.practice-block` groups the
 desktop left-hand column. That's what lets one set of markup carry both.
 
 Pairing the tall links panel with the short brand row — rather than with the
-practice — is what keeps the whole thing inside a 1280×800 laptop: grid rows are
-shared between columns, so a short item beside a tall one wastes exactly that
-difference. It fits that viewport exactly, with no scrolling.
+practice — is what keeps the two columns near even: grid rows are shared between
+columns, so a short item beside a tall one wastes exactly that difference. The page
+scrolls about 90px at 1280×800 and fits from roughly 900px of height, which is the
+honest cost of listing five activities rather than three dates.
 
 Two traps behind the vertical centring:
 
@@ -116,7 +117,7 @@ carries the name for screen readers and `title` for pointer users, since there's
 no visible text.
 
 **Section headings** — four of them ("Get to know us", "Try a meditation",
-"Download the Silent Mind App", "Book a session"), all on one `.section-title` tier:
+"Download the Silent Mind App", "Booking options"), all on one `.section-title` tier:
 the app's h3, sentence case. No exceptions — they match in font, size and colour
 everywhere.
 
@@ -131,7 +132,7 @@ problem, and it made the heading read as a stray label. What actually fixes it:
   zeroes that margin and lets the gap do the spacing.
 - The download block gets a double step of air and a hairline above it (the same
   divider the app puts between list rows), so two equally-weighted headings still
-  read as two groups. On phones they're separate stacked sections 48px apart, which
+  read as two groups. On phones they're separate stacked sections 72px apart, which
   already reads as a break, so no rule there.
 
 The headings were overlines at first, which put an 11 px uppercase eyebrow above the
