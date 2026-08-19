@@ -39,16 +39,9 @@
     { type: 'qm',    name: 'QM Session' },
   ];
 
-  /**
-   * Display names for the venue ids the API tags activities with, and the currency
-   * to price them in.
-   *
-   * `currency` is only set where it's actually known. The API returns a bare number
-   * for `price` and no currency (per-venue currency is still a config item in the
-   * multi-venue plan), and a price against the wrong symbol is worse than no price.
-   */
+  /** Display names for the venue ids the API tags activities with. */
   var VENUES = {
-    geneva:     { name: 'Geneva', currency: 'CHF' },
+    geneva:     { name: 'Geneva' },
     hyderabad:  { name: 'Hyderabad' },
     losangeles: { name: 'Los Angeles' },
     tokyo:      { name: 'Tokyo' },
@@ -111,13 +104,13 @@
   }
 
   /**
-   * One line per activity: where it runs, how long it takes, what it costs — each
-   * part included only when the catalogue says it unambiguously.
+   * One line per activity: where it runs and how long it takes.
+   *
+   * No price. The booking page states them next to the slot you're actually
+   * choosing, where they can't drift out of step with what you'll be charged.
    *
    * Duration is dropped when a type's slots differ in length (the EEG sessions run
-   * both 120 and 150 minutes), and price is dropped unless the type runs at exactly
-   * one venue whose currency we know. Both rules exist so a row can be short but
-   * never wrong.
+   * both 120 and 150 minutes), so a line can be short but never wrong.
    */
   function describe(group) {
     var parts = [];
@@ -132,11 +125,6 @@
     var minutes = Object.keys(group.minutes);
     if (minutes.length === 1) parts.push(minutes[0] + ' min');
 
-    var prices = Object.keys(group.prices);
-    if (prices.length === 1 && venues.length === 1 && VENUES[venues[0]].currency) {
-      parts.push(prices[0] + ' ' + VENUES[venues[0]].currency);
-    }
-
     return parts.join('  ·  ');
   }
 
@@ -146,10 +134,9 @@
     var groups = {};
     data.activities.forEach(function (a) {
       if (!a.type) return;
-      var g = groups[a.type] || (groups[a.type] = { venues: {}, minutes: {}, prices: {} });
+      var g = groups[a.type] || (groups[a.type] = { venues: {}, minutes: {} });
       if (a.venue) g.venues[a.venue] = true;
       if (a.slotMinutes) g.minutes[a.slotMinutes] = true;
-      if (a.price != null) g.prices[a.price] = true;
     });
 
     ACTIVITIES.forEach(function (act) {

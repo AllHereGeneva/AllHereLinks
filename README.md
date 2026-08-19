@@ -86,9 +86,16 @@ desktop left-hand column. That's what lets one set of markup carry both.
 
 Pairing the tall links panel with the short brand row — rather than with the
 practice — is what keeps the two columns near even: grid rows are shared between
-columns, so a short item beside a tall one wastes exactly that difference. The page
-scrolls about 90px at 1280×800 and fits from roughly 900px of height, which is the
-honest cost of listing five activities rather than three dates.
+columns, so a short item beside a tall one wastes exactly that difference. It fits a
+1280×800 laptop exactly, with the activity list scrolling inside its panel rather
+than the page scrolling past the fold.
+
+The practice group sits with equal air above and below it — the same step from the
+page title down to "Try a meditation" as from the pills down to the hairline. Getting
+that took two `align-self` values, not a margin: `.brand` ends its row so the gap
+below it is a value we set, and `.practice-block` starts its span so the margin is
+the whole gap. With `align-self: center` on either one, the grid adds its own leftover
+air on top of the margin and the gap comes out at twice the one underneath.
 
 Two traps behind the vertical centring:
 
@@ -255,17 +262,25 @@ catalogue then fills in each row's detail line, and if it never arrives the list
 still stands with every link working — which is also what a visitor with no
 JavaScript gets from the static fallback in `index.html`.
 
-That detail line is assembled only from what the catalogue says unambiguously:
+That detail line carries where the activity runs and how long it takes, and nothing
+else:
 
-| Part | Dropped when |
+| Part | Rule |
 | --- | --- |
-| Venues | never — always shown, in `VENUES` declaration order, not the API's |
-| Duration | the type's slots differ in length (EEG runs both 120 and 150 min) |
-| Price | the type runs at more than one venue, or that venue has no known currency |
+| Venues | always shown, in `VENUES` declaration order, not the API's |
+| Duration | dropped when the type's slots differ in length (EEG runs both 120 and 150 min) |
 
-So a row can be short but never wrong. `currency` is set only where it's actually
-known (Geneva: CHF) — the API returns a bare number and no currency, and a price
-against the wrong symbol is worse than no price.
+**No prices.** The booking page states them next to the slot you're actually
+choosing, where they can't drift out of step with what you'll be charged.
+
+### The list scrolls on desktop
+
+Five activities are taller than the right-hand column has room for once everything
+else is placed, so from 980px `.booking__options` is capped at three rows and scrolls
+inside the panel. The cap is deliberately mid-row: the fourth row is visibly cut off,
+which is what says "there is more". A permanent bottom fade is safe because the list
+is always longer than the cap. On phones the panel has a whole screen to itself, so
+there's no cap and no scrolling.
 
 ### Fetching
 

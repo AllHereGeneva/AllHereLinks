@@ -1096,17 +1096,25 @@ body {
     padding: var(--sp-lg);
   }
 
-  .brand { grid-area: brand; align-self: center; }
+  /* Anchored to the bottom of its row, so the gap below it is a value we set
+     rather than whatever the grid has left over — which is what makes the
+     symmetry below possible. */
+  .brand { grid-area: brand; align-self: end; }
 
   /* The merge: one grid item holding the practice and the app download, so the two
      read as a single offer — try a meditation, and here's where it lives. */
   .practice-block {
     display: block;
     grid-area: practice;
-    align-self: center;
-    /* The brand row sits directly above with no gutter of its own, so without this
-       "Instant meditation" reads as a subtitle glued under "THE SILENT MIND". */
-    margin-top: var(--sp-lg);
+    /* `start`, not `center`: it spans three rows sized by the right-hand column, so
+       centring inside that span added its own air on top of the margin below and the
+       gap came out at twice the one underneath. Pinned to the top, the margin is the
+       whole gap — which is what makes it match. */
+    align-self: start;
+    /* Equal to the gap from the pills down to the hairline below, so the practice
+       group sits optically centred between the page title and the download ask
+       rather than crowded against one of them. */
+    margin-top: var(--sp-xl);
   }
 
   .hero { padding-top: 0; }
@@ -1130,6 +1138,28 @@ body {
   /* A quiet single line — a full step above it was the last 8px between this
      layout and a 1280x800 laptop. */
   .footer  { grid-area: footer; align-self: start; margin-top: var(--sp-sm); }
+
+  /* Five activities are taller than the column has room for once everything else
+     is placed, so the list scrolls inside the panel rather than pushing the page
+     past the fold. Capped at three rows: enough to read as a list and to make the
+     fourth one visibly cut off, which is what says "there is more". The permanent
+     bottom fade is safe here because the list is always longer than the cap. */
+  .booking__options {
+    max-height: 153px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+    -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+            mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+  }
+
+  .booking__options::-webkit-scrollbar { width: 6px; }
+  .booking__options::-webkit-scrollbar-track { background: transparent; }
+  .booking__options::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 3px;
+  }
 
   /* Floating glass panels replace the phone layout's scrim — the same grammar as
      the leaderboard's standings panel. */
