@@ -78,7 +78,17 @@ the first word onto a line of its own.
 
 **980px and up** — two columns. Left: the brand, then the practice and the app
 download **merged into one block** (`.practice-block`) — try a meditation, and right
-there is where it lives. Right: the links panel, the booking options, and the footer.
+there is where it lives. Right: the links panel and the booking options. The footer
+spans both columns on its own row underneath.
+
+The two columns start and end level, and that's built rather than lucky:
+
+- The footer is its own full-width row, so it takes no part in sizing either column.
+  It used to sit in the right column, where its height dragged the alignment with it.
+- The practice block spans rows 2–3 and the booking panel sits in row 3, so their
+  bottom edges are the same grid line. `.booking` is `align-self: stretch`, which is
+  what brings its bottom border level with the download buttons opposite instead of
+  floating somewhere above them.
 
 Both wrappers exist for one layout each and dissolve in the other with
 `display: contents`: `.screen` groups a phone screen, `.practice-block` groups the

@@ -1083,11 +1083,16 @@ body {
        with the short brand row (rather than with the practice) is what keeps the
        whole thing inside a 1280x800 laptop — the rows are shared between columns,
        so a short item next to a tall one wastes exactly that difference. */
+    /* The footer spans both columns on its own row below them, so it takes no part
+       in sizing either one — it used to sit in the right column and drag the
+       alignment with it. Everything above it ends on the same row: the practice
+       block spans rows 2-3 and the booking panel sits in row 3, so their bottom
+       edges coincide by construction rather than by luck. */
     grid-template-areas:
       'brand    links'
       'practice links'
       'practice booking'
-      'practice footer';
+      'footer   footer';
     column-gap: clamp(40px, 5vw, 88px);
     /* `min-height` (not height) above means the grid grows when the content is
        taller than the viewport, so centring here can't push anything out of
@@ -1133,11 +1138,19 @@ body {
 
 
 
-  .links   { grid-area: links; align-self: center; margin-top: 0; }
-  .booking { grid-area: booking; align-self: center; margin-top: var(--sp-md); }
-  /* A quiet single line — a full step above it was the last 8px between this
-     layout and a 1280x800 laptop. */
-  .footer  { grid-area: footer; align-self: start; margin-top: var(--sp-sm); }
+  .links { grid-area: links; align-self: start; margin-top: 0; }
+
+  /* Stretched, not centred: the row is sized by the left column's content, so
+     filling it is what brings the panel's bottom border level with the download
+     buttons opposite. */
+  .booking {
+    grid-area: booking;
+    align-self: stretch;
+    margin-top: var(--sp-md);
+  }
+  /* Spans both columns, below the aligned pair. A quiet single line, so a full
+     step above it was the last 8px between this layout and a 1280x800 laptop. */
+  .footer { grid-area: footer; align-self: start; margin-top: var(--sp-sm); }
 
   /* Five activities are taller than the column has room for once everything else
      is placed, so the list scrolls inside the panel rather than pushing the page
