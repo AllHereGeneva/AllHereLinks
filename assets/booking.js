@@ -1,18 +1,20 @@
 /**
- * Upcoming sessions panel.
+ * Booking options.
  *
- * Lists the next sessions across every venue and hands off to
- * allherelounge.com/booking/ for the rest. It doesn't book: reserving needs a
- * signed-in account and credits (the API answers 402 no_credit when they run
- * out), and all of that already lives on that page. Duplicating it here would
- * mean every future booking change had to be made twice.
+ * Lists what we offer and sends each one to its own calendar on
+ * allherelounge.com/booking/. It doesn't book: reserving needs a signed-in account
+ * and credits (the API answers 402 no_credit when they run out), and all of that
+ * already lives on that page. Duplicating it here would mean every future booking
+ * change had to be made twice.
  *
- * No geolocation, and no venue in the URL. An earlier version reordered the page
- * around where the visitor was, which meant the panel only appeared if they
- * arrived through a venue-specific code or explicitly asked to be located —
- * so someone standing in Geneva on a plain link saw nothing at all. Listing what
- * is coming up, wherever it is, and naming the cities is simpler and always says
- * something true.
+ * It used to list the next few dated slots. Activities are the better unit: a date
+ * is stale the moment it passes, whereas "we run these five things" holds, and the
+ * booking page's own calendar is a better place to choose a time than three rows on
+ * a landing page.
+ *
+ * `?a=<type>` on that page calls its `flowPick(type)` and opens that activity's
+ * calendar directly, so every row is a real deep link. It also guesses the venue
+ * from the browser timezone, which is why nothing here needs to.
  */
 (function () {
   'use strict';
@@ -21,13 +23,29 @@
   var BOOKING_URL = 'https://allherelounge.com/booking/';
 
   /**
-   * Display names for the venue ids the API tags activities with, and the
-   * currency to price them in.
+   * What we offer, in the order it should be read — shortest and most accessible
+   * first, deepest last. `type` is both the id the API tags slots with and the id
+   * the booking page's `?a=` deep link accepts.
    *
-   * `currency` is only set where it's actually known. The API returns a bare
-   * number for `price` and no currency (per-venue currency is still a config item
-   * in the multi-venue plan), and a price shown against the wrong symbol is worse
-   * than no price at all — so a venue without one simply shows no price.
+   * The names are ours, not the API's, in one case: the API still titles the EEG
+   * activity "EEG Meditation Session", while the Lounge site calls it a Quantified
+   * Meditation Session in public. The public name wins.
+   */
+  var ACTIVITIES = [
+    { type: 'xr',    name: 'Silent Mind XR Session' },
+    { type: 'zenbu', name: 'Zenbu Koko' },
+    { type: 'eeg',   name: 'Quantified Meditation Session' },
+    { type: 'lmt',   name: 'Track &amp; Train' },
+    { type: 'qm',    name: 'QM Session' },
+  ];
+
+  /**
+   * Display names for the venue ids the API tags activities with, and the currency
+   * to price them in.
+   *
+   * `currency` is only set where it's actually known. The API returns a bare number
+   * for `price` and no currency (per-venue currency is still a config item in the
+   * multi-venue plan), and a price against the wrong symbol is worse than no price.
    */
   var VENUES = {
     geneva:     { name: 'Geneva', currency: 'CHF' },
@@ -36,70 +54,9 @@
     tokyo:      { name: 'Tokyo' },
   };
 
-  /** Enough to show there's a programme; the link carries the rest. Three also
-   *  matches the three-row link list above it on desktop, and keeps the right-hand
-   *  column inside a 1280x800 laptop. */
-  var HOW_MANY = 3;
-
   var root = document.getElementById('booking');
   var body = document.getElementById('booking-body');
-  var citiesEl = document.getElementById('booking-cities');
   if (!root || !body) return;
-
-  // --- dates ------------------------------------------------------------
-
-  /**
-   * Slot datetimes arrive as "2026-08-19T17:00" with no zone, and they mean the
-   * VENUE's local time (the Lounge booking page says as much). Handing that to
-   * `new Date()` would make the browser read it as the visitor's local time and
-   * then reformat it into their zone — so 17:00 in Geneva would show as 08:00 to
-   * someone in Los Angeles. Parse the parts by hand and format through UTC, which
-   * keeps the digits exactly as the venue published them.
-   */
-  function parseSlot(s) {
-    var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(s || '');
-    if (!m) return null;
-    return {
-      utc: new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5])),
-      hhmm: m[4] + ':' + m[5],
-      day: m[1] + '-' + m[2] + '-' + m[3],
-    };
-  }
-
-  function formatDay(slot) {
-    return slot.utc.toLocaleDateString('en-GB', {
-      weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC',
-    });
-  }
-
-  function todayIso() {
-    var d = new Date();
-    var p = function (n) { return (n < 10 ? '0' : '') + n; };
-    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
-  }
-
-  // --- data -------------------------------------------------------------
-
-  /** Upcoming, non-full sessions from every known venue, soonest first. */
-  function upcoming(data) {
-    if (!data || !data.activities) return [];
-    var today = todayIso();
-    var out = [];
-    data.activities.forEach(function (a) {
-      if (!a.venue || !VENUES[a.venue]) return;
-      var slot = parseSlot(a.datetime);
-      if (!slot || slot.day < today) return;
-      var left = (a.capacity == null ? null : a.capacity - (a.booked || 0));
-      // Nothing to offer on a full session.
-      if (left !== null && left <= 0) return;
-      out.push({
-        slot: slot, venue: a.venue, title: a.title || '',
-        type: a.type || '', price: a.price, left: left,
-      });
-    });
-    out.sort(function (x, y) { return x.slot.utc - y.slot.utc; });
-    return out;
-  }
 
   // --- rendering --------------------------------------------------------
 
@@ -110,90 +67,131 @@
     return e;
   }
 
-  function link(cls, href) {
-    var a = el('a', cls);
-    a.href = href;
-    a.target = '_blank';
-    a.rel = 'noopener';
-    return a;
-  }
-
   /**
-   * Every venue we run, in the order declared above — which is therefore the
-   * editorial order, not the API's.
-   *
-   * Not filtered to venues with sessions on the calendar: this line says where All
-   * Here operates, which stays true whether or not Tokyo happens to have a slot
-   * open this week. The rows below are the ones that make an offer, and those are
-   * still only ever real, bookable sessions. It also means the line needs no data,
-   * so it goes up as soon as the script runs.
+   * The rows, from the config alone — no data needed, so they go up immediately.
+   * The catalogue then fills in each row's details (see describe); if it never
+   * arrives, the list still stands and every link still works.
    */
-  function renderCities() {
-    citiesEl.textContent = Object.keys(VENUES).map(function (id) {
-      return VENUES[id].name;
-    }).join('  ·  ');
-    citiesEl.hidden = false;
-  }
+  var metaFor = {};
 
-  function render(sessions) {
-    if (!sessions || !sessions.length) return;   // keep the static fallback
-
+  function render() {
     body.textContent = '';
-    var list = el('ul', 'booking__slots');
+    var list = el('ul', 'booking__options');
 
-    sessions.slice(0, HOW_MANY).forEach(function (s) {
-      var venue = VENUES[s.venue];
+    ACTIVITIES.forEach(function (act) {
       var li = document.createElement('li');
-      var a = link('booking__slot', BOOKING_URL + '?a=' + encodeURIComponent(s.type));
+      var a = el('a', 'booking__option');
+      a.href = BOOKING_URL + '?a=' + encodeURIComponent(act.type);
+      a.target = '_blank';
+      a.rel = 'noopener';
 
-      var when = el('span', 'booking__when');
-      when.appendChild(el('span', 'booking__day', formatDay(s.slot)));
-      when.appendChild(el('span', 'booking__time', s.slot.hhmm));
-      a.appendChild(when);
+      var text = el('span', 'booking__what');
+      // innerHTML for the one name carrying an entity (Track &amp; Train).
+      var name = el('span', 'booking__session');
+      name.innerHTML = act.name;
+      text.appendChild(name);
 
-      var what = el('span', 'booking__what');
-      what.appendChild(el('span', 'booking__session', s.title));
-      // The city belongs on every row, not just in the header: the list mixes
-      // venues, so a time without a place doesn't tell you whether it's yours.
-      var bits = [venue.name];
-      if (s.price != null && venue.currency) bits.push(s.price + ' ' + venue.currency);
-      if (s.left != null) bits.push(s.left + (s.left === 1 ? ' place left' : ' places left'));
-      what.appendChild(el('span', 'booking__meta', bits.join('  ·  ')));
-      a.appendChild(what);
+      var meta = el('span', 'booking__meta', metaFor[act.type] || '');
+      meta.setAttribute('data-type', act.type);
+      text.appendChild(meta);
 
+      a.appendChild(text);
       a.appendChild(el('span', 'booking__chevron', '›'));
       li.appendChild(a);
       list.appendChild(li);
     });
 
     body.appendChild(list);
-    var cta = link('booking__cta', BOOKING_URL);
-    cta.textContent = 'Book a session ›';
+
+    var cta = el('a', 'booking__cta', 'See the full calendar ›');
+    cta.href = BOOKING_URL;
+    cta.target = '_blank';
+    cta.rel = 'noopener';
     body.appendChild(cta);
+  }
+
+  /**
+   * One line per activity: where it runs, how long it takes, what it costs — each
+   * part included only when the catalogue says it unambiguously.
+   *
+   * Duration is dropped when a type's slots differ in length (the EEG sessions run
+   * both 120 and 150 minutes), and price is dropped unless the type runs at exactly
+   * one venue whose currency we know. Both rules exist so a row can be short but
+   * never wrong.
+   */
+  function describe(group) {
+    var parts = [];
+
+    // Walk VENUES rather than the group, so venues always read in the declared
+    // order instead of whatever order the API happened to return them in.
+    var venues = Object.keys(VENUES).filter(function (v) { return group.venues[v]; });
+    if (venues.length) {
+      parts.push(venues.map(function (v) { return VENUES[v].name; }).join(', '));
+    }
+
+    var minutes = Object.keys(group.minutes);
+    if (minutes.length === 1) parts.push(minutes[0] + ' min');
+
+    var prices = Object.keys(group.prices);
+    if (prices.length === 1 && venues.length === 1 && VENUES[venues[0]].currency) {
+      parts.push(prices[0] + ' ' + VENUES[venues[0]].currency);
+    }
+
+    return parts.join('  ·  ');
+  }
+
+  function enrich(data) {
+    if (!data || !data.activities) return;
+
+    var groups = {};
+    data.activities.forEach(function (a) {
+      if (!a.type) return;
+      var g = groups[a.type] || (groups[a.type] = { venues: {}, minutes: {}, prices: {} });
+      if (a.venue) g.venues[a.venue] = true;
+      if (a.slotMinutes) g.minutes[a.slotMinutes] = true;
+      if (a.price != null) g.prices[a.price] = true;
+    });
+
+    ACTIVITIES.forEach(function (act) {
+      var g = groups[act.type];
+      if (!g) return;
+      metaFor[act.type] = describe(g);
+      var slot = body.querySelector('.booking__meta[data-type="' + act.type + '"]');
+      if (slot) slot.textContent = metaFor[act.type];
+    });
   }
 
   // --- start ------------------------------------------------------------
 
+  render();
+
   function load() {
-    // 24 KB, and the API doesn't compress it — so it waits until the panel is
-    // actually near the viewport (see maybeLoad). On desktop that's immediately,
-    // since the panel sits in the right-hand column; on a phone it's the last
-    // screen, so only visitors who scroll that far pay for it.
+    // 24 KB, and the API doesn't compress it. The rows don't need it — only their
+    // detail lines do — so it waits until the panel is within a screen of the
+    // viewport: immediately on desktop, and on a phone only for visitors who reach
+    // the last screen.
     fetch(API, { cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (data) { render(upcoming(data)); })
-      .catch(function () { /* the static fallback in the markup stands */ });
+      .then(enrich)
+      .catch(function () { /* the rows stand without their detail lines */ });
   }
 
   /**
-   * Fetch once the panel is within a screen of the viewport. A plain rect test
-   * rather than an IntersectionObserver: the observer only reports while the page
-   * is actually being rendered, so a page opened in a background tab (or a headless
-   * check) would sit on the fallback until it was looked at. This runs the moment
-   * the script does, wherever the panel happens to be.
+   * Two independent triggers, because the detail lines are worth fetching once but
+   * not worth losing to a single missed signal:
+   *
+   *   - a rect test, run immediately and again on scroll / resize. This is what
+   *     covers the panel already being in view at load (every desktop visit), and
+   *     it works even where the page isn't being actively rendered.
+   *   - an IntersectionObserver, which is the idiomatic tool and catches anything
+   *     that moves the panel into view without a scroll event — a hash landing, a
+   *     restored scroll position, a layout shift above it.
+   *
+   * Whichever fires first wins; `loaded` makes the other a no-op. The rows and
+   * their links never depend on either: only the "Geneva · 30 min · 30 CHF" lines
+   * do, so a visitor who never reaches the panel never pays for the 24 KB (which
+   * the API does not compress).
    */
-  renderCities();
-
   var loaded = false;
 
   function nearViewport() {
@@ -201,17 +199,28 @@
     return r.top < window.innerHeight + 200 && r.bottom > -200;
   }
 
-  function maybeLoad() {
-    if (loaded || !nearViewport()) return;
+  function trigger() {
+    if (loaded) return;
     loaded = true;
-    window.removeEventListener('scroll', maybeLoad);
-    window.removeEventListener('resize', maybeLoad);
+    window.removeEventListener('scroll', onScroll);
+    window.removeEventListener('resize', onScroll);
+    if (io) io.disconnect();
     load();
   }
 
-  maybeLoad();
+  function onScroll() { if (nearViewport()) trigger(); }
+
+  var io = null;
+  if ('IntersectionObserver' in window) {
+    io = new IntersectionObserver(function (entries) {
+      if (entries.some(function (e) { return e.isIntersecting; })) trigger();
+    }, { rootMargin: '200px' });
+    io.observe(root);
+  }
+
+  onScroll();
   if (!loaded) {
-    window.addEventListener('scroll', maybeLoad, { passive: true });
-    window.addEventListener('resize', maybeLoad);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
   }
 })();

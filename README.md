@@ -57,7 +57,7 @@ is what keeps them, not what greets them.
 | --- | --- |
 | Screen 1 | wordmark, page title, the link list, the socials |
 | Screen 2 | the practice, the app download, the footer |
-| Screen 3 | what's coming up at the venues |
+| Screen 3 | the booking options |
 
 Each screen is a `.screen` wrapper at `min-height: 100svh` with
 `scroll-snap-align: start`. Snapping is `proximity`, not `mandatory`: a screen can
@@ -220,72 +220,69 @@ t.convert('P', palette=Image.ADAPTIVE, colors=128).save('assets/img/worldmap.png
 
 ## The booking panel
 
-Lists the next three sessions across every venue, names the cities they're in, and
-hands off to `allherelounge.com/booking/` for the rest. It doesn't book: reserving
-needs a signed-in account (email OTP, Google, Apple) and credits — the API answers
-`402 no_credit` when they run out — and all of that already exists in the Lounge
-site's 1,600-line booking page. A second implementation here would mean every
-future booking change had to be made twice, in a place where an auth bug would
-touch real accounts.
+"Booking options" lists what we offer and sends each row to its own calendar on
+`allherelounge.com/booking/`. It doesn't book: reserving needs a signed-in account
+(email OTP, Google, Apple) and credits — the API answers `402 no_credit` when they
+run out — and all of that already exists in the Lounge site's 1,600-line booking
+page. A second implementation here would mean every future booking change had to be
+made twice, in a place where an auth bug would touch real accounts.
 
-What it does use is the **public** part: `GET https://api.allherelounge.com/booking`
-needs no auth and sends `access-control-allow-origin: *`, so the page reads the real
-catalogue — sessions, prices, capacity — client-side.
+`?a=<type>` on that page calls its own `flowPick(type)` and opens that activity's
+calendar directly, so every row is a real deep link. That page also guesses the
+venue from the browser timezone, which is why nothing here needs to.
 
-### Why there's no geolocation
+### Activities, not dates
 
-There was, briefly: `?venue=<id>` on the URL plus an opt-in "Use my location" button,
-and the panel moved to the front of the page when it knew where you were. It was
-removed because it only ever showed itself to visitors who arrived through a
-venue-specific code or explicitly asked to be located — so **someone standing in
-Geneva, on the plain link, saw nothing at all**, which is exactly the report that
-killed it. Listing what's coming up wherever it is, with the cities named, is
-simpler and always says something true.
+It used to list the next few dated slots. Activities are the better unit: a date is
+stale the moment it passes, whereas "we run these five things" holds, and the
+booking page's calendar is a better place to pick a time than three rows on a
+landing page.
 
-If venue-awareness comes back, the lesson is that it can't be the only way the panel
-becomes useful.
+`ACTIVITIES` in `assets/booking.js` — the list, in reading order, shortest and most
+accessible first. `type` is both the id the API tags slots with and the id `?a=`
+accepts, so adding one is a single entry.
 
-### Venues
+**One name is deliberately ours, not the API's.** The API still titles the EEG
+activity "EEG Meditation Session"; the Lounge site calls it a **Quantified
+Meditation Session** in public, and the public name wins here. Worth fixing upstream
+so the two stop disagreeing.
 
-`VENUES` in `assets/booking.js` — one entry per venue, and the ids must match what
-the API tags activities with (`geneva`, `hyderabad`, `losangeles`, `tokyo` today). A
-venue only needs a display name.
+### Why the rows render before the data
 
-The line under the heading names **every** venue, in the order they're declared —
-which is therefore the editorial order, not the API's. Deliberately not filtered to
-venues with slots on the calendar: it says where All Here operates, which stays true
-whether or not Tokyo happens to have an opening this week. It needs no data, so it
-renders the moment the script does. (Adding a venue means the `VENUES` entry, and the
-prose in the static fallback paragraph in `index.html`, which names the cities for
-the no-JS case.)
+The rows and their links need no data, so they go up the moment the script runs. The
+catalogue then fills in each row's detail line, and if it never arrives the list
+still stands with every link working — which is also what a visitor with no
+JavaScript gets from the static fallback in `index.html`.
 
-`currency` is set **only where it's actually known** (Geneva: CHF). The API returns a
-bare number for `price` and no currency — per-venue currency is still a config item
-in the multi-venue plan — and a price against the wrong symbol is worse than no
-price. Venues without a currency simply show no price.
+That detail line is assembled only from what the catalogue says unambiguously:
 
-The city goes on **every row**, not just in the header: the list mixes venues, so a
-time without a place doesn't tell a reader whether it's theirs. Full sessions are
-dropped, and a venue with nothing upcoming never appears.
+| Part | Dropped when |
+| --- | --- |
+| Venues | never — always shown, in `VENUES` declaration order, not the API's |
+| Duration | the type's slots differ in length (EEG runs both 120 and 150 min) |
+| Price | the type runs at more than one venue, or that venue has no known currency |
 
-### Two traps worth keeping in mind
+So a row can be short but never wrong. `currency` is set only where it's actually
+known (Geneva: CHF) — the API returns a bare number and no currency, and a price
+against the wrong symbol is worse than no price.
 
-- **Slot times are venue-local and carry no zone** (`2026-08-19T17:00`). The Lounge
-  booking page says as much. Handing that to `new Date()` makes the browser read it
-  as the *visitor's* local time and reformat it into their zone — 17:00 in Geneva
-  would show as 08:00 to a reader in Los Angeles. `parseSlot()` reads the parts by
-  hand and formats through UTC so the digits stay exactly as published.
-- **The catalogue is 24 KB and the API doesn't compress it** — bigger than this whole
-  page. So it's only fetched once the panel is within a screen of the viewport:
-  immediately on desktop, and on a phone only for visitors who reach the last screen.
-  That check is a plain `getBoundingClientRect` test rather than an
-  IntersectionObserver, which only reports while the page is actually being
-  rendered — a page opened in a background tab would have sat on its fallback until
-  someone looked at it.
+### Fetching
 
-If the fetch fails or the script never runs, the static markup in `index.html`
-stands: one line about the venues and a link to the calendar. That fallback has to
-stay useful on its own, which is why it doesn't say "loading".
+The catalogue is 24 KB and **the API does not compress it** — bigger than this whole
+page. It's fetched only when the panel is within a screen of the viewport:
+immediately on desktop, and on a phone only for visitors who reach the last screen.
+
+Two independent triggers do that, because the detail lines are worth fetching once
+but not worth losing to a single missed signal: a `getBoundingClientRect` test (run
+immediately, then on scroll and resize) and an `IntersectionObserver`. Whichever
+fires first wins. The rect test is what covers the panel already being in view at
+load; the observer catches anything that moves it into view without a scroll event —
+a hash landing, a restored scroll position, a layout shift above it.
+
+> Neither trigger fires in a browser pane that isn't being actively rendered, which
+> is worth knowing if you ever test this headless: scroll events aren't dispatched
+> and intersections aren't computed. The at-load path is observable at desktop
+> widths; the lazy path needs a real browser.
 
 ---
 

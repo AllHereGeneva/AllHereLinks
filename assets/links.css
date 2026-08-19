@@ -7,9 +7,9 @@
  * in lockstep; the play button's animation durations and amplitudes are copied
  * from CircleButton so the ring breathes at exactly the same rhythm.
  *
- * Layout: on phones, two full-height screens — brand and links first, then the
- * practice and the app — joined by a scroll cue. From 980px it's a two-column
- * grid with everything on one screen.
+ * Layout: on phones, three full-height screens — brand and links, then the practice
+ * and the app, then the booking options — the first two joined by a scroll cue. From
+ * 980px it's a two-column grid with everything on one screen.
  */
 
 :root {
@@ -164,11 +164,12 @@ body {
 }
 
 /* --- section headings -------------------------------------------------
-   One tier for all three ("Get to know us", "Instant meditation", "Download the
-   Silent Mind App"): the app's h3, sentence case. Deliberately NOT the overline
-   tier — an 11px uppercase eyebrow read as smaller than the 18px readout it was
-   meant to govern, which inverted the hierarchy. Sizes now descend strictly:
-   22 page title, 16 section heading, 14 the attention switch, 12 the readout. */
+   One tier for all four ("Get to know us", "Try a meditation", "Download the Silent
+   Mind App", "Booking options"): the app's h3, sentence case. Deliberately NOT the
+   overline tier — an 11px uppercase eyebrow read as smaller than the readout it was
+   meant to govern, which inverted the hierarchy. Sizes descend strictly: 22 page
+   title, 16 section heading, 14 the attention switch, 12 the readout (26 / 18 / 14 /
+   12 from 640px). */
 .section-title {
   font-weight: 600;
   font-size: 16px;
@@ -820,15 +821,6 @@ body {
   margin-top: var(--sp-xl);
 }
 
-/* The cities with sessions coming up, under the heading. */
-.booking__cities {
-  margin: calc(var(--sp-md) * -1) 0 var(--sp-md);
-  text-align: center;
-  font-size: 12px;
-  letter-spacing: 0.3px;
-  color: var(--text-muted);
-}
-
 .booking__note {
   margin: 0 0 var(--sp-md);
   text-align: center;
@@ -838,56 +830,29 @@ body {
 }
 
 /* Same borderless-with-hairlines grammar as the link list. */
-.booking__slots {
+.booking__options {
   list-style: none;
   margin: 0 0 var(--sp-md);
   padding: 0;
   border-top: 1px solid var(--separator);
 }
 
-.booking__slots li { border-bottom: 1px solid var(--separator); }
+.booking__options li { border-bottom: 1px solid var(--separator); }
 
-.booking__slot {
+.booking__option {
   display: flex;
   align-items: center;
   gap: var(--sp-md);
-  padding: var(--sp-sm) var(--sp-sm);
+  padding: var(--sp-sm);
   color: var(--text);
   text-decoration: none;
   transition: background 200ms ease;
 }
 
-.booking__slot:hover,
-.booking__slot:focus-visible { background: rgba(255, 255, 255, 0.05); }
+.booking__option:hover,
+.booking__option:focus-visible { background: rgba(255, 255, 255, 0.05); }
 
-.booking__slot:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
-
-/* Fixed width so every row's session title starts on the same x. Wide enough for
-   "WED 19 AUG" on one line — at 62px the month wrapped under the weekday. */
-.booking__when {
-  flex: none;
-  width: 78px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.booking__day {
-  font-size: 11px;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  white-space: nowrap;
-}
-
-/* Venue-local time, printed exactly as published — never converted to the
-   visitor's zone (see parseSlot in booking.js). */
-.booking__time {
-  font-weight: 600;
-  font-size: 15px;
-  line-height: 19px;
-  font-variant-numeric: tabular-nums;
-}
+.booking__option:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
 
 .booking__what { flex: 1 1 auto; min-width: 0; }
 
@@ -898,6 +863,8 @@ body {
   line-height: 19px;
 }
 
+/* Where it runs, how long, what it costs — filled in from the catalogue, and empty
+   until it arrives (or if it never does). */
 .booking__meta {
   display: block;
   font-size: 11px;
@@ -906,6 +873,8 @@ body {
   color: var(--text-muted);
   margin-top: 1px;
 }
+
+.booking__meta:empty { display: none; }
 
 .booking__chevron { flex: none; color: var(--text-dim); font-size: 18px; line-height: 1; }
 
@@ -1030,8 +999,9 @@ body {
   .links { margin-top: var(--sp-lg); }
 
   /* Clear air between the practice and the download ask, so they read as two
-     separate offers rather than one continuous block. */
-  .app { margin-top: var(--sp-xxl); }
+     separate offers rather than one continuous block. A full step and a half:
+     at 48px the two still read as one run of centred text. */
+  .app { margin-top: calc(var(--sp-xxl) + var(--sp-lg)); }
 
   .booking { margin-top: var(--sp-lg); }
 
