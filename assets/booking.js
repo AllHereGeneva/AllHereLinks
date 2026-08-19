@@ -32,11 +32,14 @@
    * Meditation Session in public. The public name wins.
    */
   var ACTIVITIES = [
-    { type: 'xr',    name: 'Silent Mind XR Session' },
-    { type: 'zenbu', name: 'Zenbu Koko' },
-    { type: 'eeg',   name: 'Quantified Meditation Session' },
-    { type: 'lmt',   name: 'Track &amp; Train' },
-    { type: 'qm',    name: 'QM Session' },
+    { types: ['xr'],    name: 'Silent Mind XR Session' },
+    { types: ['zenbu'], name: 'Zenbu Koko' },
+    // One activity under two API ids. `eeg` is Geneva's, titled "EEG Meditation
+    // Session"; `qm` is the same session in Hyderabad and Los Angeles, titled "QM
+    // Session" — QM being Quantified Meditation. The Lounge site's fuller public
+    // name covers both.
+    { types: ['eeg', 'qm'], name: 'Quantified Meditation Session' },
+    { types: ['lmt'],   name: 'Track &amp; Train' },
   ];
 
   /** Display names for the venue ids the API tags activities with. */
@@ -67,6 +70,20 @@
    */
   var metaFor = {};
 
+  /**
+   * A single-type activity deep-links straight to its calendar. One covering two ids
+   * can't: they're disjoint by venue (Geneva's `eeg` versus Hyderabad and Los
+   * Angeles' `qm`), the booking page's flowPick doesn't check that the venue it
+   * guessed actually runs the type it was handed, and so `?a=eeg` would open an
+   * empty calendar for a reader in India. The plain calendar lets that page resolve
+   * the venue itself, which it already does from the browser timezone.
+   */
+  function hrefFor(act) {
+    return act.types.length === 1
+      ? BOOKING_URL + '?a=' + encodeURIComponent(act.types[0])
+      : BOOKING_URL;
+  }
+
   function render() {
     body.textContent = '';
     var list = el('ul', 'booking__options');
@@ -74,7 +91,7 @@
     ACTIVITIES.forEach(function (act) {
       var li = document.createElement('li');
       var a = el('a', 'booking__option');
-      a.href = BOOKING_URL + '?a=' + encodeURIComponent(act.type);
+      a.href = hrefFor(act);
       a.target = '_blank';
       a.rel = 'noopener';
 
@@ -84,8 +101,8 @@
       name.innerHTML = act.name;
       text.appendChild(name);
 
-      var meta = el('span', 'booking__meta', metaFor[act.type] || '');
-      meta.setAttribute('data-type', act.type);
+      var meta = el('span', 'booking__meta', metaFor[act.types[0]] || '');
+      meta.setAttribute('data-type', act.types[0]);
       text.appendChild(meta);
 
       a.appendChild(text);
@@ -140,11 +157,22 @@
     });
 
     ACTIVITIES.forEach(function (act) {
-      var g = groups[act.type];
-      if (!g) return;
-      metaFor[act.type] = describe(g);
-      var slot = body.querySelector('.booking__meta[data-type="' + act.type + '"]');
-      if (slot) slot.textContent = metaFor[act.type];
+      // Union across every id this one activity is filed under, so the merged row
+      // names all three of its venues rather than one id's share of them.
+      var merged = { venues: {}, minutes: {} };
+      var found = false;
+      act.types.forEach(function (t) {
+        var g = groups[t];
+        if (!g) return;
+        found = true;
+        Object.keys(g.venues).forEach(function (v) { merged.venues[v] = true; });
+        Object.keys(g.minutes).forEach(function (m) { merged.minutes[m] = true; });
+      });
+      if (!found) return;
+      var key = act.types[0];
+      metaFor[key] = describe(merged);
+      var slot = body.querySelector('.booking__meta[data-type="' + key + '"]');
+      if (slot) slot.textContent = metaFor[key];
     });
   }
 

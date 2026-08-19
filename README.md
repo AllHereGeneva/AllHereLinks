@@ -247,13 +247,21 @@ booking page's calendar is a better place to pick a time than three rows on a
 landing page.
 
 `ACTIVITIES` in `assets/booking.js` — the list, in reading order, shortest and most
-accessible first. `type` is both the id the API tags slots with and the id `?a=`
-accepts, so adding one is a single entry.
+accessible first. `types` holds the ids the API tags slots with, which are also the
+ids `?a=` accepts, so adding an activity is a single entry.
 
-**One name is deliberately ours, not the API's.** The API still titles the EEG
-activity "EEG Meditation Session"; the Lounge site calls it a **Quantified
-Meditation Session** in public, and the public name wins here. Worth fixing upstream
-so the two stop disagreeing.
+**One activity sits under two API ids.** `eeg` is Geneva's, titled "EEG Meditation
+Session"; `qm` is the same session in Hyderabad and Los Angeles, titled "QM Session"
+— QM being Quantified Meditation. They're one row here under the Lounge site's fuller
+public name, **Quantified Meditation Session**, and its detail line unions all three
+venues. Worth reconciling upstream so one activity stops having two names and two
+ids.
+
+That merge is also the one row that does **not** deep-link. The two ids are disjoint
+by venue, and the booking page's `flowPick` doesn't check that the venue it guessed
+actually runs the type it was handed — so `?a=eeg` would open an empty calendar for a
+reader in India. It goes to the plain calendar instead and lets that page resolve the
+venue, which it already does from the browser timezone.
 
 ### Why the rows render before the data
 
@@ -275,12 +283,13 @@ choosing, where they can't drift out of step with what you'll be charged.
 
 ### The list scrolls on desktop
 
-Five activities are taller than the right-hand column has room for once everything
-else is placed, so from 980px `.booking__options` is capped at three rows and scrolls
-inside the panel. The cap is deliberately mid-row: the fourth row is visibly cut off,
-which is what says "there is more". A permanent bottom fade is safe because the list
-is always longer than the cap. On phones the panel has a whole screen to itself, so
-there's no cap and no scrolling.
+The list is taller than the right-hand column has room for once everything else is
+placed, so from 980px `.booking__options` is capped at three rows and scrolls inside
+the panel. A permanent bottom fade is safe because the list is always longer than the
+cap — but it sits on the bottom **edge** only: reaching further up dimmed a row that
+was fully present, which read as a rendering fault rather than as "there is more
+below". On phones the panel has a whole screen to itself, so there's no cap and no
+scrolling.
 
 ### Fetching
 

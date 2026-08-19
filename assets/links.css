@@ -1114,7 +1114,7 @@ body {
     /* Equal to the gap from the pills down to the hairline below, so the practice
        group sits optically centred between the page title and the download ask
        rather than crowded against one of them. */
-    margin-top: var(--sp-xl);
+    margin-top: var(--sp-xxl);
   }
 
   .hero { padding-top: 0; }
@@ -1126,8 +1126,8 @@ body {
      plus a hairline, the same divider the app puts between list rows. Shrinking the
      download heading instead made it read as a stray label. */
   .app {
-    margin-top: var(--sp-xl);
-    padding-top: var(--sp-xl);
+    margin-top: var(--sp-xxl);
+    padding-top: var(--sp-xxl);
     border-top: 1px solid var(--separator);
   }
 
@@ -1150,8 +1150,11 @@ body {
     overscroll-behavior: contain;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
-    -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
-            mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+    /* The fade sits on the bottom edge only. Reaching further up dimmed a row that
+       was fully present, which read as a rendering fault rather than as "there is
+       more below". */
+    -webkit-mask-image: linear-gradient(to bottom, #000 88%, transparent 100%);
+            mask-image: linear-gradient(to bottom, #000 88%, transparent 100%);
   }
 
   .booking__options::-webkit-scrollbar { width: 6px; }
