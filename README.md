@@ -110,11 +110,10 @@ columns, so a short item beside a tall one wastes exactly that difference. It fi
 than the page scrolling past the fold.
 
 The practice group sits with equal air above and below it — the same step from the
-page title down to "Try a meditation" as from the pills down to the hairline. Getting
-that took two `align-self` values, not a margin: `.brand` ends its row so the gap
-below it is a value we set, and `.practice-block` starts its span so the margin is
-the whole gap. With `align-self: center` on either one, the grid adds its own leftover
-air on top of the margin and the gap comes out at twice the one underneath.
+page title down to "Try a meditation" as from the pills down to the hairline. `.brand`
+is `align-self: end` so the gap below it is a value we set rather than whatever the
+grid has left over; with `center` there, the grid adds its own leftover air on top of
+the margin and the gap came out at twice the one underneath (66px against 32px).
 
 Two traps behind the vertical centring:
 
