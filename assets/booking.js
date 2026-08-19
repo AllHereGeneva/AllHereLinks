@@ -175,7 +175,7 @@
    *     restored scroll position, a layout shift above it.
    *
    * Whichever fires first wins; `loaded` makes the other a no-op. The rows and
-   * their links never depend on either: only the "Geneva · 30 min · 30 CHF" lines
+   * their links never depend on either: only the "Geneva · 30 min" lines
    * do, so a visitor who never reaches the panel never pays for the 24 KB (which
    * the API does not compress).
    */
