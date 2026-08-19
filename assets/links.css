@@ -77,9 +77,9 @@
 
 .link__sub,
 .now,
+.booking__venues,
 .sheet__subtitle,
-.sheet__body p,
-.footer { text-wrap: pretty; }
+.sheet__body p { text-wrap: pretty; }
 
 /* No overflow / contain / filter on <html> or <body>: any of them would make
    the element a containing block for position:fixed descendants, which detaches
@@ -800,16 +800,6 @@ body {
   width: auto;
 }
 
-/* --- footer ----------------------------------------------------------- */
-
-.footer {
-  margin: var(--sp-xl) 0 0;
-  text-align: center;
-  font-size: 12px;
-  letter-spacing: 0.3px;
-  color: var(--text-dim);
-}
-
 /* --- booking ----------------------------------------------------------
    Sessions bookable near the visitor. This panel stops at a link into
    allherelounge.com/booking/: reserving needs a signed-in account and credits,
@@ -826,6 +816,16 @@ body {
   text-align: center;
   font-size: 13px;
   line-height: 19px;
+  color: var(--text-muted);
+}
+
+/* Every venue, once, under the heading. Takes the place of naming them on each row,
+   where the same names repeated four times over. */
+.booking__venues {
+  margin: calc(var(--sp-md) * -1) 0 var(--sp-md);
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.3px;
   color: var(--text-muted);
 }
 
@@ -1077,22 +1077,19 @@ body {
     /* Rows are all `auto`, never `1fr`: a fractional row would swallow the free
        space and leave `align-content` nothing to distribute, which pins the
        brand to the top of the window instead of centring the stack. */
-    grid-template-rows: auto auto auto auto;
+    grid-template-rows: auto auto auto;
     /* Left: the brand, then the practice and the app download as one block. Right:
-       the links, what's coming up, and the footer. Pairing the tall links panel
+       the links and the booking options. Pairing the tall links panel
        with the short brand row (rather than with the practice) is what keeps the
        whole thing inside a 1280x800 laptop — the rows are shared between columns,
        so a short item next to a tall one wastes exactly that difference. */
-    /* The footer spans both columns on its own row below them, so it takes no part
-       in sizing either one — it used to sit in the right column and drag the
-       alignment with it. Everything above it ends on the same row: the practice
-       block spans rows 2-3 and the booking panel sits in row 3, so their bottom
-       edges coincide by construction rather than by luck. */
+    /* Both columns end on the same row by construction rather than by luck: the
+       practice block spans rows 2-3 and the booking panel sits in row 3, so their
+       bottom edges are the same grid line. */
     grid-template-areas:
       'brand    links'
       'practice links'
-      'practice booking'
-      'footer   footer';
+      'practice booking';
     column-gap: clamp(40px, 5vw, 88px);
     /* `min-height` (not height) above means the grid grows when the content is
        taller than the viewport, so centring here can't push anything out of
@@ -1109,20 +1106,26 @@ body {
   /* The merge: one grid item holding the practice and the app download, so the two
      read as a single offer — try a meditation, and here's where it lives. */
   .practice-block {
-    display: block;
     grid-area: practice;
-    /* `start`, not `center`: it spans three rows sized by the right-hand column, so
-       centring inside that span added its own air on top of the margin below and the
-       gap came out at twice the one underneath. Pinned to the top, the margin is the
-       whole gap — which is what makes it match. */
-    align-self: start;
-    /* Equal to the gap from the pills down to the hairline below, so the practice
-       group sits optically centred between the page title and the download ask
-       rather than crowded against one of them. */
+    /* Stretched and laid out as a column, so its bottom edge IS the row's bottom
+       edge whichever side of the grid turns out taller. With `start` the alignment
+       only held while the left column was the taller one; the moment the right grew
+       past it the booking frame slid 12px below the download buttons. */
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    /* Equal to the minimum gap from the pills down to the hairline below, so the
+       practice group sits optically centred between the page title and the download
+       ask rather than crowded against one of them. */
     margin-top: var(--sp-xxl);
   }
 
-  .hero { padding-top: 0; }
+  /* Absorbs any surplus height, so the download block stays pinned to the bottom of
+     the span while keeping its own margin as a floor. `margin-top: auto` on .app
+     alone would have collapsed that floor to nothing whenever the left column was
+     the taller one. */
+  .hero { margin-bottom: auto; }
+
 
   /* Inside the block it's no longer a panel of its own — it shares the hero's bare
      treatment over the atmosphere, which is what makes the two read as one block.
@@ -1148,10 +1151,6 @@ body {
     align-self: stretch;
     margin-top: var(--sp-md);
   }
-  /* Spans both columns, below the aligned pair. A quiet single line, so a full
-     step above it was the last 8px between this layout and a 1280x800 laptop. */
-  .footer { grid-area: footer; align-self: start; margin-top: var(--sp-sm); }
-
   /* Five activities are taller than the column has room for once everything else
      is placed, so the list scrolls inside the panel rather than pushing the page
      past the fold. Capped at three rows: enough to read as a list and to make the

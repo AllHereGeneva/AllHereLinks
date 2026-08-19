@@ -52,6 +52,7 @@
 
   var root = document.getElementById('booking');
   var body = document.getElementById('booking-body');
+  var venuesEl = document.getElementById('booking-venues');
   if (!root || !body) return;
 
   // --- rendering --------------------------------------------------------
@@ -121,28 +122,35 @@
   }
 
   /**
-   * One line per activity: where it runs and how long it takes.
+   * Every venue, named once under the heading, in the order they're declared above —
+   * which is therefore the editorial order, not the API's.
    *
-   * No price. The booking page states them next to the slot you're actually
-   * choosing, where they can't drift out of step with what you'll be charged.
+   * Not filtered to venues with something on the calendar: this says where All Here
+   * operates, which stays true whether or not Tokyo has an opening this week. It
+   * needs no data either, so it goes up as soon as the script runs.
+   */
+  function renderVenues() {
+    if (!venuesEl) return;
+    venuesEl.textContent = Object.keys(VENUES).map(function (id) {
+      return VENUES[id].name;
+    }).join('  ·  ');
+    venuesEl.hidden = false;
+  }
+
+  /**
+   * One line per activity: how long it takes, and nothing else.
+   *
+   * No venues — they're named once under the heading instead, where they don't
+   * repeat the same four names down every row. No prices either: the booking page
+   * states those next to the slot you're actually choosing, where they can't drift
+   * out of step with what you'll be charged.
    *
    * Duration is dropped when a type's slots differ in length (the EEG sessions run
    * both 120 and 150 minutes), so a line can be short but never wrong.
    */
   function describe(group) {
-    var parts = [];
-
-    // Walk VENUES rather than the group, so venues always read in the declared
-    // order instead of whatever order the API happened to return them in.
-    var venues = Object.keys(VENUES).filter(function (v) { return group.venues[v]; });
-    if (venues.length) {
-      parts.push(venues.map(function (v) { return VENUES[v].name; }).join(', '));
-    }
-
     var minutes = Object.keys(group.minutes);
-    if (minutes.length === 1) parts.push(minutes[0] + ' min');
-
-    return parts.join('  ·  ');
+    return minutes.length === 1 ? minutes[0] + ' min' : '';
   }
 
   function enrich(data) {
@@ -151,21 +159,19 @@
     var groups = {};
     data.activities.forEach(function (a) {
       if (!a.type) return;
-      var g = groups[a.type] || (groups[a.type] = { venues: {}, minutes: {} });
-      if (a.venue) g.venues[a.venue] = true;
+      var g = groups[a.type] || (groups[a.type] = { minutes: {} });
       if (a.slotMinutes) g.minutes[a.slotMinutes] = true;
     });
 
     ACTIVITIES.forEach(function (act) {
-      // Union across every id this one activity is filed under, so the merged row
-      // names all three of its venues rather than one id's share of them.
-      var merged = { venues: {}, minutes: {} };
+      // Union across every id this one activity is filed under, so a merged row
+      // reads from all of them rather than one id's share.
+      var merged = { minutes: {} };
       var found = false;
       act.types.forEach(function (t) {
         var g = groups[t];
         if (!g) return;
         found = true;
-        Object.keys(g.venues).forEach(function (v) { merged.venues[v] = true; });
         Object.keys(g.minutes).forEach(function (m) { merged.minutes[m] = true; });
       });
       if (!found) return;
@@ -178,6 +184,7 @@
 
   // --- start ------------------------------------------------------------
 
+  renderVenues();
   render();
 
   function load() {

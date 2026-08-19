@@ -373,9 +373,6 @@
 
   </div>
 
-  <!-- No allhere.org link here: it already has its own row on the first screen. -->
-  <p class="footer">All Here &middot; Geneva</p>
-
 </div>
 
 <!-- Third screen: what's coming up at the venues. Last on a phone, and the
@@ -384,6 +381,10 @@
 
   <section class="booking" id="booking">
     <h2 class="section-title">Booking options</h2>
+    <!-- Every venue, named once under the heading rather than repeated on each
+         row. Filled from the VENUES config in booking.js, so it needs no data and
+         goes up as soon as the script runs. -->
+    <p class="booking__venues" id="booking-venues" hidden></p>
 
     <div class="booking__body" id="booking-body">
       <!-- Static fallback for a visitor with no JavaScript. The script replaces

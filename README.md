@@ -56,7 +56,7 @@ is what keeps them, not what greets them.
 | | |
 | --- | --- |
 | Screen 1 | wordmark, page title, the link list, the socials |
-| Screen 2 | the practice, the app download, the footer |
+| Screen 2 | the practice, then the app download |
 | Screen 3 | the booking options |
 
 Each screen is a `.screen` wrapper at `min-height: 100svh` with
@@ -78,17 +78,20 @@ the first word onto a line of its own.
 
 **980px and up** — two columns. Left: the brand, then the practice and the app
 download **merged into one block** (`.practice-block`) — try a meditation, and right
-there is where it lives. Right: the links panel and the booking options. The footer
-spans both columns on its own row underneath.
+there is where it lives. Right: the links panel and the booking options.
 
-The two columns start and end level, and that's built rather than lucky:
+The two columns start and end level, and that's built rather than lucky. Both
+`.practice-block` and `.booking` are `align-self: stretch` in the row where they end,
+so their bottom edges are the same grid line **whichever column turns out taller** —
+and `.hero { margin-bottom: auto }` absorbs any surplus inside the left one, keeping
+the download block pinned to that bottom edge.
 
-- The footer is its own full-width row, so it takes no part in sizing either column.
-  It used to sit in the right column, where its height dragged the alignment with it.
-- The practice block spans rows 2–3 and the booking panel sits in row 3, so their
-  bottom edges are the same grid line. `.booking` is `align-self: stretch`, which is
-  what brings its bottom border level with the download buttons opposite instead of
-  floating somewhere above them.
+That last part is the whole trick. With `align-self: start` the alignment held only
+while the left column was the taller one; the moment the right grew past it, the
+booking frame slid below the download buttons. Putting `margin-top: auto` on `.app`
+instead would pin it to the bottom but collapse its own margin to nothing whenever
+the left column was taller, gluing it to the pills — hence the surplus being absorbed
+above it rather than below.
 
 Both wrappers exist for one layout each and dissolve in the other with
 `display: contents`: `.screen` groups a phone screen, `.practice-block` groups the
@@ -283,10 +286,14 @@ JavaScript gets from the static fallback in `index.html`.
 That detail line carries where the activity runs and how long it takes, and nothing
 else:
 
-| Part | Rule |
-| --- | --- |
-| Venues | always shown, in `VENUES` declaration order, not the API's |
-| Duration | dropped when the type's slots differ in length (EEG runs both 120 and 150 min) |
+The venues are named **once, under the heading** (`.booking__venues`), in `VENUES`
+declaration order — not on each row, where the same four names repeated all the way
+down. That line isn't filtered to venues with something on the calendar either: it
+says where All Here operates, which stays true whether or not Tokyo has an opening
+this week. It needs no data, so it renders as soon as the script does.
+
+Each row then carries only its duration, dropped when a type's slots differ in length
+(EEG runs both 120 and 150 min) — so a line can be short but never wrong.
 
 **No prices.** The booking page states them next to the slot you're actually
 choosing, where they can't drift out of step with what you'll be charged.
