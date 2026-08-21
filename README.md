@@ -232,7 +232,7 @@ the map changes:
 ```bash
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless \
   --hide-scrollbars --virtual-time-budget=9000 --window-size=1400,900 \
-  --screenshot=map-raw.png "https://allheregeneva.github.io/AllHereLeaderboard/"
+  --screenshot=map-raw.png "https://allheregeneva.github.io/QM3Standings/"
 python3 -c "
 from PIL import Image
 im = Image.open('map-raw.png')
