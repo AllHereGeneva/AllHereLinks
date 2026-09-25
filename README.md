@@ -47,17 +47,19 @@ shared package.
 
 ## Layout
 
-The order is the same at every size: **who we are, then the practice, then the
-app**. Someone scanning the code should reach our own pages first; the meditation
-is what keeps them, not what greets them.
+On phones the practice comes first and the links follow; from 980px both columns are
+in view at once, so the question doesn't arise.
 
 **Phones (< 640px)** — three full-height screens:
 
 | | |
 | --- | --- |
-| Screen 1 | wordmark, page title, the link list, the socials |
-| Screen 2 | the practice, then the app download |
+| Screen 1 | wordmark, page title, the practice, the app download |
+| Screen 2 | the link list and the socials |
 | Screen 3 | the booking options |
+
+The wordmark travels with the practice rather than staying with the links: a page
+reached by scanning a code has to say whose it is on the screen you actually land on.
 
 Each screen is a `.screen` wrapper at `min-height: 100svh` with
 `scroll-snap-align: start`, and each but the last carries a cue to the next — "Try a

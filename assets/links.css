@@ -7,9 +7,9 @@
  * in lockstep; the play button's animation durations and amplitudes are copied
  * from CircleButton so the ring breathes at exactly the same rhythm.
  *
- * Layout: on phones, three full-height screens — brand and links, then the practice
- * and the app, then the booking options — each joined to the next by a scroll cue.
- * From 980px it's a two-column grid with everything on one screen.
+ * Layout: on phones, three full-height screens — the brand with the practice and the
+ * app, then the links, then the booking options — each joined to the next by a scroll
+ * cue. From 980px it's a two-column grid with everything on one screen.
  */
 
 :root {
@@ -1046,6 +1046,12 @@ body {
 
   /* The title needs air under the wordmark; at 24px the two ran together. */
   .title { margin-top: var(--sp-xl); }
+
+  /* The wordmark now heads the first screen, directly above the practice, so the
+     two need separating the way the title and the practice do on desktop.
+     Matched through .practice-block: it's `display: contents` here, so .brand and
+     .hero are not siblings — the wrapper is. */
+  .brand + .practice-block .hero { margin-top: var(--sp-xl); }
 }
 
 /* --- wider viewports --------------------------------------------------
